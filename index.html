@@ -1,0 +1,3500 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>GANGS CHASE</title>
+
+
+<!-- PWA -->
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#d42b2b">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+<meta name="apple-mobile-web-app-title" content="Gangs Chase">
+
+<link rel="apple-touch-icon" href="icon-192.png">
+
+
+<!-- SEO -->
+
+<meta name="description" content="Jeu de tir 2D — Libère Haïti des gangs armés. Mode Campagne + Survie VIV ANSANM.">
+
+<meta property="og:title" content="GANGS CHASE">
+
+<meta property="og:description" content="Libère Haïti département par département. Drones, armes, gangs haïtiens.">
+
+<meta property="og:image" content="icon-512.png">
+
+<meta property="og:type" content="website">
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap');
+
+:root{
+
+  --r:#d42b2b;--y:#f5c400;--g:#00e676;--b:#003f8a;
+
+  --dark:#07080a;--card:#141618;--text:#e8dfc8;--dim:#555;
+
+  --sky:#87CEEB;--ground:#8B6914;--road:#555;
+
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);
+
+  font-family:'Barlow Condensed',sans-serif;color:var(--text);
+
+  touch-action:none;user-select:none;}
+
+
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;
+
+  align-items:center;justify-content:center;z-index:20;padding:10px;overflow-y:auto;}
+
+.screen.off{display:none;}
+
+
+/* MENU */
+
+#s-menu{background:radial-gradient(ellipse at 50% 0%,#200505,var(--dark) 70%);}
+
+.flag{display:flex;width:160px;height:5px;border-radius:2px;overflow:hidden;margin-bottom:12px;}
+
+.f1{flex:1;background:var(--b);}.f2{flex:1;background:var(--r);}
+
+.gtitle{font-family:'Bebas Neue',sans-serif;
+
+  font-size:clamp(56px,16vw,112px);
+
+  color:var(--r);text-shadow:5px 5px 0 #000,0 0 60px #d42b2b88;
+
+  line-height:.82;text-align:center;}
+
+.gsub{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,5vw,32px);
+
+  color:var(--y);letter-spacing:.3em;margin-bottom:4px;}
+
+.gdesc{font-size:10px;color:var(--dim);letter-spacing:.2em;margin-bottom:22px;}
+
+.btn{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.14em;
+
+  padding:10px 30px;border:none;cursor:pointer;
+
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);
+
+  transition:filter .15s,transform .1s;}
+
+.btn:active{transform:scale(.95);}
+
+.btn-r{background:var(--r);color:#fff;}.btn-r:hover{filter:brightness(1.2);}
+
+.btn-d{background:#1e1e1e;color:var(--text);border:1px solid #2a2a2a;}.btn-d:hover{background:#2a2a2a;}
+
+.btn-g{background:#003f1a;color:var(--g);border:1px solid var(--g);}.btn-g:hover{background:#005522;}
+
+.btn-y{background:var(--y);color:#000;}.btn-y:hover{filter:brightness(1.1);}
+
+.mbtns{display:flex;flex-direction:column;gap:8px;align-items:center;}
+
+.mhint{font-size:10px;color:#2a2a2a;margin-top:12px;text-align:center;line-height:2.2;}
+
+
+/* HUD */
+
+#hud{position:fixed;top:0;left:0;right:0;
+
+  display:flex;justify-content:space-between;align-items:center;
+
+  padding:4px 10px;background:rgba(0,0,0,.9);border-bottom:2px solid var(--r);
+
+  z-index:15;flex-wrap:wrap;gap:3px;}
+
+#hud.off{display:none;}
+
+.hb{display:flex;flex-direction:column;align-items:center;}
+
+.hl{font-size:7px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;}
+
+.hv{font-family:'Bebas Neue',sans-serif;font-size:16px;line-height:1;}
+
+.hv.gold{color:var(--y);}.hv.red{color:var(--r);}.hv.grn{color:var(--g);}
+
+#hp-wrap{width:80px;height:6px;background:#1a1a1a;border-radius:2px;margin-top:2px;border:1px solid #333;}
+
+#hp-fill{height:100%;border-radius:2px;background:var(--r);transition:width .15s;}
+
+#ammo-val{font-family:'Bebas Neue',sans-serif;font-size:16px;}
+
+
+/* GAME CANVAS */
+
+#game-wrap{position:fixed;inset:0;z-index:5;}
+
+#game-wrap.off{display:none;}
+
+#gc{display:block;width:100%;height:100%;}
+
+
+/* BANNER */
+
+#banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+
+  pointer-events:none;z-index:25;opacity:0;text-align:center;transition:opacity .4s;}
+
+.bnt{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,7vw,58px);
+
+  text-shadow:0 0 30px currentColor;line-height:1;}
+
+.bns{font-size:11px;letter-spacing:.25em;color:#888;margin-top:4px;}
+
+
+/* SHOP */
+
+#s-shop{background:rgba(0,0,0,.97);overflow-y:auto;justify-content:flex-start;padding-top:14px;}
+
+.shop-hdr{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,6vw,44px);color:var(--y);letter-spacing:.1em;}
+
+.shop-info{font-size:12px;color:var(--dim);margin:2px 0 10px;}
+
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));
+
+  gap:7px;width:100%;max-width:630px;margin-bottom:10px;}
+
+.sec-title{grid-column:1/-1;font-family:'Bebas Neue',sans-serif;
+
+  font-size:14px;color:var(--y);letter-spacing:.1em;margin:6px 0 2px;}
+
+.sc{background:var(--card);border:1px solid #1e1e1e;padding:9px;text-align:center;
+
+  cursor:pointer;transition:border-color .15s,background .15s;position:relative;}
+
+.sc:hover:not(.sc-lock):not(.sc-own){border-color:var(--y);background:#1c1c1c;}
+
+.sc.sc-lock{opacity:.35;cursor:not-allowed;}
+
+.sc.sc-eq{border-color:var(--g);background:#001508;}
+
+.sc.sc-own{border-color:#333;cursor:default;}
+
+.sc .si{font-size:23px;margin-bottom:3px;}
+
+.sc .sn{font-family:'Bebas Neue',sans-serif;font-size:14px;}
+
+.sc .sp{font-size:10px;color:var(--y);margin:2px 0;}
+
+.sc .sd{font-size:9px;color:var(--dim);}
+
+.sc .sa{font-size:10px;color:#88ccff;margin-top:2px;}
+
+.sbadge{position:absolute;top:3px;right:3px;font-size:8px;padding:1px 4px;font-weight:700;}
+
+.sbeq{background:var(--g);color:#000;}.sbok{background:#444;color:#999;}
+
+.sbar{height:3px;background:#111;border-radius:2px;margin-top:3px;overflow:hidden;}
+
+.sbf{height:100%;border-radius:2px;}
+
+
+/* OVER / WIN */
+
+#s-over,#s-win{background:rgba(0,0,0,.97);text-align:center;}
+
+.over-t{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,11vw,86px);line-height:.9;}
+
+.over-s{font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--y);
+
+  margin:10px 0 18px;line-height:1.9;white-space:pre-line;}
+
+.over-b{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+
+
+/* MAP */
+
+#s-map{background:#070e07;overflow-y:auto;}
+
+.map-hdr{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,4vw,30px);
+
+  color:var(--y);letter-spacing:.2em;text-align:center;margin-bottom:2px;}
+
+.map-sub{font-size:10px;color:var(--dim);letter-spacing:.15em;margin-bottom:8px;text-align:center;}
+
+#hmap{position:relative;width:min(680px,97vw);margin:0 auto;}
+
+#hmap svg{width:100%;height:auto;display:block;}
+
+.dp{cursor:pointer;transition:all .2s;}
+
+.dp:hover{filter:brightness(1.4);}
+
+.dp.locked{cursor:not-allowed;opacity:.3;filter:grayscale(.9);}
+
+.dp.cleared{filter:brightness(.55) saturate(.3) hue-rotate(100deg);}
+
+.map-leg{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+
+  margin-top:6px;font-size:10px;color:var(--dim);}
+
+.ld{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;}
+
+
+/* BRIEF */
+
+#s-brief{background:rgba(0,0,0,.97);text-align:center;}
+
+.b-icon{font-size:48px;margin-bottom:6px;}
+
+.b-gang{font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,6vw,44px);line-height:1;margin-bottom:2px;}
+
+.bcard{background:var(--card);border:1px solid #1e1e1e;padding:10px 14px;
+
+  max-width:350px;margin:0 auto 10px;text-align:left;width:100%;}
+
+.bcard h3{font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--y);margin-bottom:5px;}
+
+.brow{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px solid #181818;}
+
+.brow:last-child{border:none;}
+
+.brow span:last-child{color:var(--y);font-weight:700;}
+
+.gtags{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0;}
+
+.gtag{background:#1a1a1a;border:1px solid #252525;padding:2px 5px;font-size:9px;border-radius:2px;}
+
+
+/* MOBILE */
+
+#m-ctrl{position:fixed;bottom:0;left:0;right:0;height:120px;
+
+  pointer-events:none;z-index:16;display:none;}
+
+@media(pointer:coarse){#m-ctrl{display:block;}}
+
+#joy-zone{position:absolute;left:12px;bottom:12px;width:94px;height:94px;
+
+  border-radius:50%;background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.1);pointer-events:all;}
+
+#joy-knob{position:absolute;width:36px;height:36px;border-radius:50%;
+
+  background:rgba(212,43,43,.55);border:2px solid var(--r);top:50%;left:50%;transform:translate(-50%,-50%);}
+
+#fire-btn{position:absolute;right:12px;bottom:12px;width:70px;height:70px;
+
+  border-radius:50%;background:rgba(212,43,43,.15);border:3px solid var(--r);
+
+  display:flex;align-items:center;justify-content:center;
+
+  font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--r);pointer-events:all;}
+
+#jump-btn{position:absolute;right:96px;bottom:36px;width:50px;height:50px;
+
+  border-radius:50%;background:rgba(0,63,138,.2);border:2px solid var(--b);
+
+  display:flex;align-items:center;justify-content:center;
+
+  font-size:18px;pointer-events:all;}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- HUD -->
+
+<div id="hud" class="off">
+
+  <div class="hb"><span class="hl">Zone</span><span class="hv red" id="h-zone">—</span></div>
+
+  <div class="hb"><span class="hl">Gang</span><span class="hv" id="h-gang" style="font-size:10px;max-width:88px;text-align:center;line-height:1.1">—</span></div>
+
+  <div class="hb"><span class="hl">Vague</span><span class="hv red" id="h-wave">1</span></div>
+
+  <div class="hb"><span class="hl">HP</span><div id="hp-wrap"><div id="hp-fill"></div></div></div>
+
+  <div class="hb"><span class="hl">Kills</span><span class="hv grn" id="h-kills">0</span></div>
+
+  <div class="hb"><span class="hl">Munitions</span><span id="ammo-val">15</span></div>
+
+  <div class="hb"><span class="hl">Argent</span><span class="hv gold" id="h-money">$0</span></div>
+
+  <div class="hb" id="timer-wrap" style="display:none">
+
+    <span class="hl">Survie</span><span class="hv" id="h-timer" style="color:var(--y)">10:00</span>
+
+  </div>
+
+</div>
+
+
+<!-- MENU -->
+
+<div class="screen" id="s-menu">
+
+  <div class="flag"><div class="f1"></div><div class="f2"></div></div>
+
+  <div class="gtitle">GANGS</div>
+
+  <div class="gtitle" style="color:var(--y)">CHASE</div>
+
+  <div class="gsub">HAÏTI</div>
+
+  <div class="gdesc">LIBÈRE HAÏTI DÉPARTEMENT PAR DÉPARTEMENT</div>
+
+  <div class="mbtns">
+
+    <button class="btn btn-r" id="play-btn">🗺 MODE CAMPAGNE</button>
+
+    <button class="btn btn-g" id="surv-btn">⚡ VIV ANSANM — SURVIE</button>
+
+  </div>
+
+  <div class="mhint">
+
+    ← → / A D → Bouger &nbsp;|&nbsp; ↑ / W / ESPACE → Sauter<br>
+
+    Souris → Viser &nbsp;|&nbsp; Clic → Tirer &nbsp;|&nbsp; Mobile : joystick + boutons<br>
+
+    Munitions limitées — tue pour récupérer — achète de meilleures armes
+
+  </div>
+
+</div>
+
+
+<!-- MAP -->
+
+<div class="screen off" id="s-map">
+
+  <div class="map-hdr">🗺 GANGS CHASE — HAÏTI</div>
+
+  <div class="map-sub">CLIQUE SUR UN DÉPARTEMENT</div>
+
+  <div id="hmap">
+
+    <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg">
+
+      <defs>
+
+        <radialGradient id="bgm"><stop offset="0%" stop-color="#0a1a0a"/><stop offset="100%" stop-color="#040804"/></radialGradient>
+
+      </defs>
+
+      <rect width="800" height="480" fill="url(#bgm)"/>
+
+      <text x="590" y="28" fill="#1a3a5a" font-size="11" font-family="Barlow Condensed" letter-spacing="3">OCÉAN ATLANTIQUE</text>
+
+      <text x="300" y="462" fill="#1a3a5a" font-size="10" font-family="Barlow Condensed" letter-spacing="3">MER DES CARAÏBES</text>
+
+      <text x="92" y="238" fill="#1a3a5a" font-size="10" font-family="Barlow Condensed">CANAL DE</text>
+
+      <text x="88" y="252" fill="#1a3a5a" font-size="10" font-family="Barlow Condensed">LA GONÂVE</text>
+
+      <path id="d-nord" class="dp" data-id="nord" d="M380,40 L460,35 L530,45 L570,60 L580,80 L560,95 L530,100 L500,95 L470,105 L440,110 L410,100 L390,85 L375,65 Z" fill="#7b2d8b" stroke="#000" stroke-width="1.5"/>
+
+      <text x="478" y="76" fill="#fff" font-size="11" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">NORD</text>
+
+      <path id="d-nordest" class="dp" data-id="nordest" d="M570,60 L640,50 L700,55 L740,70 L750,95 L730,115 L700,120 L670,115 L640,110 L610,105 L580,95 L580,80 Z" fill="#2471a3" stroke="#000" stroke-width="1.5"/>
+
+      <text x="658" y="88" fill="#fff" font-size="10" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">NORD-EST</text>
+
+      <path id="d-artibonite" class="dp" data-id="artibonite" d="M320,90 L380,85 L410,100 L440,110 L450,140 L440,165 L430,185 L410,195 L385,190 L360,180 L340,165 L325,145 L315,120 Z" fill="#d35400" stroke="#000" stroke-width="1.5"/>
+
+      <text x="378" y="148" fill="#fff" font-size="10" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">ARTIBONITE</text>
+
+      <path id="d-centre" class="dp" data-id="centre" d="M440,110 L500,95 L530,100 L560,115 L580,135 L575,160 L560,175 L540,185 L510,190 L480,185 L455,175 L440,165 L450,140 Z" fill="#b7950b" stroke="#000" stroke-width="1.5"/>
+
+      <text x="510" y="152" fill="#fff" font-size="11" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">CENTRE</text>
+
+      <path id="d-ouest" class="dp" data-id="ouest" d="M310,185 L340,165 L360,180 L385,190 L410,195 L430,185 L440,165 L455,175 L460,200 L450,220 L435,235 L420,250 L405,265 L390,270 L370,265 L350,255 L335,240 L320,225 L308,210 Z" fill="#c0392b" stroke="#000" stroke-width="1.5"/>
+
+      <text x="385" y="224" fill="#fff" font-size="11" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">OUEST</text>
+
+      <text x="408" y="246" fill="#ffcc00" font-size="11" text-anchor="middle" pointer-events="none">★</text>
+
+      <path id="d-sudest" class="dp" data-id="sudest" d="M460,200 L510,190 L540,185 L570,190 L600,200 L620,220 L615,245 L595,260 L565,268 L535,265 L505,258 L480,248 L460,235 L450,220 Z" fill="#1e8449" stroke="#000" stroke-width="1.5"/>
+
+      <text x="535" y="228" fill="#fff" font-size="10" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">SUD-EST</text>
+
+      <path id="d-nippes" class="dp" data-id="nippes" d="M300,270 L320,255 L335,265 L350,278 L355,295 L345,310 L330,318 L312,315 L298,300 L292,285 Z" fill="#148f77" stroke="#000" stroke-width="1.5"/>
+
+      <text x="324" y="292" fill="#fff" font-size="9" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">NIPPES</text>
+
+      <path id="d-sud" class="dp" data-id="sud" d="M290,285 L308,270 L320,255 L335,240 L350,255 L370,265 L390,270 L405,275 L415,290 L410,310 L395,325 L375,332 L350,330 L325,320 L305,310 L292,298 Z" fill="#922b21" stroke="#000" stroke-width="1.5"/>
+
+      <text x="355" y="302" fill="#fff" font-size="10" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">SUD</text>
+
+      <path id="d-grandanse" class="dp" data-id="grandanse" d="M210,265 L240,255 L265,260 L285,270 L295,285 L292,300 L280,315 L262,325 L240,328 L218,320 L205,305 L200,288 Z" fill="#7e5109" stroke="#000" stroke-width="1.5"/>
+
+      <text x="248" y="293" fill="#fff" font-size="9" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">GRAND'ANSE</text>
+
+      <ellipse cx="205" cy="210" rx="38" ry="18" fill="#162608" stroke="#2d4a10" stroke-width="1"/>
+
+      <text x="205" y="214" fill="#3a5a20" font-size="9" font-family="Bebas Neue" text-anchor="middle" pointer-events="none">GONÂVE</text>
+
+      <!-- VIV ANSANM pulsing node -->
+
+      <g id="va-node" style="cursor:pointer" transform="translate(390,220)">
+
+        <circle r="20" fill="none" stroke="#f5c400" stroke-width="2" opacity=".5">
+
+          <animate attributeName="r" values="16;24;16" dur="2s" repeatCount="indefinite"/>
+
+          <animate attributeName="opacity" values=".5;.15;.5" dur="2s" repeatCount="indefinite"/>
+
+        </circle>
+
+        <circle r="12" fill="#1a0020" stroke="#d42b2b" stroke-width="2"/>
+
+        <text y="4" fill="#f5c400" font-size="10" font-family="Bebas Neue" text-anchor="middle">⚡</text>
+
+      </g>
+
+    </svg>
+
+  </div>
+
+  <div class="map-leg">
+
+    <span><span class="ld" style="background:var(--g)"></span>Libéré</span>
+
+    <span><span class="ld" style="background:var(--r)"></span>Disponible</span>
+
+    <span><span class="ld" style="background:#333"></span>Verrouillé</span>
+
+    <span><span class="ld" style="background:var(--y);border-radius:2px"></span>VIV ANSANM ⚡</span>
+
+  </div>
+
+  <div style="margin-top:8px;display:flex;gap:8px">
+
+    <button class="btn btn-d" id="menu-from-map">← MENU</button>
+
+  </div>
+
+</div>
+
+
+<!-- BRIEF -->
+
+<div class="screen off" id="s-brief">
+
+  <div class="b-icon" id="b-icon">⚔</div>
+
+  <div class="b-gang" id="b-name">—</div>
+
+  <div style="font-size:10px;letter-spacing:.25em;color:var(--dim);margin-bottom:3px" id="b-zone">—</div>
+
+  <div style="font-size:12px;font-style:italic;color:#888;margin-bottom:10px" id="b-motto">—</div>
+
+  <div class="bcard">
+
+    <h3>🔫 GANGS PRÉSENTS</h3>
+
+    <div class="gtags" id="b-gangs"></div>
+
+  </div>
+
+  <div class="bcard">
+
+    <h3>⚔ MISSION</h3>
+
+    <div class="brow"><span>Chef</span><span id="b-boss">—</span></div>
+
+    <div class="brow"><span>Danger</span><span id="b-danger">—</span></div>
+
+    <div class="brow"><span>Vagues</span><span id="b-waves">—</span></div>
+
+    <div class="brow"><span>Récompense</span><span id="b-reward">—</span></div>
+
+  </div>
+
+  <div style="display:flex;gap:8px">
+
+    <button class="btn btn-d" id="back-map">← CARTE</button>
+
+    <button class="btn btn-r" id="start-zone">ATTAQUER →</button>
+
+  </div>
+
+</div>
+
+
+<!-- SURV INTRO -->
+
+<div class="screen off" id="s-surv">
+
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,7vw,56px);color:var(--r);line-height:1">⚡ VIV ANSANM</div>
+
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(16px,4vw,26px);color:var(--y);letter-spacing:.2em">KOALITION DE TOUS LES GANGS</div>
+
+  <div style="font-size:10px;color:var(--dim);letter-spacing:.2em;margin:4px 0 12px">SURVIE · VAGUES INFINIES · 10 MINUTES</div>
+
+  <div id="surv-chips" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:480px;margin-bottom:14px;"></div>
+
+  <div style="font-size:11px;color:var(--dim);max-width:360px;text-align:center;margin-bottom:14px;line-height:1.8">
+
+    Tous les gangs haïtiens s'unissent contre toi.<br>
+
+    Survie 10 minutes = victoire. Achète de meilleures armes entre les vagues.
+
+  </div>
+
+  <div style="display:flex;gap:8px">
+
+    <button class="btn btn-d" id="back-surv">← RETOUR</button>
+
+    <button class="btn btn-g" id="start-surv">⚡ COMMENCER</button>
+
+  </div>
+
+</div>
+
+
+<!-- GAME -->
+
+<div id="game-wrap" class="off">
+
+  <canvas id="gc"></canvas>
+
+</div>
+
+
+<!-- SHOP -->
+
+<div class="screen off" id="s-shop">
+
+  <div class="shop-hdr">🔫 ARMURERIE</div>
+
+  <div class="shop-info" id="shop-wave-info">Entre les vagues — achète des armes et munitions</div>
+
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--y);margin-bottom:10px">
+
+    💰 <span id="shop-cash">$0</span>
+
+  </div>
+
+  <div class="sgrid" id="sgrid"></div>
+
+  <button class="btn btn-r" id="cont-btn">CONTINUER →</button>
+
+</div>
+
+
+<!-- OVER -->
+
+<div class="screen off" id="s-over">
+
+  <div class="over-t" id="over-t" style="color:var(--r)">GAME<br>OVER</div>
+
+  <div class="over-s" id="over-s"></div>
+
+  <div class="over-b">
+
+    <button class="btn btn-d" id="retry-btn">RÉESSAYER</button>
+
+    <button class="btn btn-y" id="map-over">🗺 CARTE</button>
+
+    <button class="btn btn-g" id="surv-over">⚡ SURVIE</button>
+
+  </div>
+
+</div>
+
+
+<!-- WIN -->
+
+<div class="screen off" id="s-win">
+
+  <div class="over-t" id="win-t" style="color:var(--g)">ZONE<br>LIBÉRÉE!</div>
+
+  <div class="over-s" id="win-s"></div>
+
+  <div class="over-b">
+
+    <button class="btn btn-y" id="map-win">🗺 CARTE</button>
+
+  </div>
+
+</div>
+
+
+<!-- BANNER -->
+
+<div id="banner">
+
+  <div class="bnt" id="bn-t">—</div>
+
+  <div class="bns" id="bn-s">—</div>
+
+</div>
+
+
+<!-- MOBILE CONTROLS -->
+
+<div id="m-ctrl">
+
+            const d2=Math.hypot(e.x-dr.x,e.y-e.h/2-dr.y);
+
+            if(d2<def.bombRadius){
+
+              e.hp-=def.bombDmg*(1-d2/def.bombRadius);
+
+              e.flash=15;
+
+              if(e.hp<=0) killEnemy(ei);
+
+            }
+
+          });
+
+          spawnFX(dr.x,dr.y,'#ff6600',25,5,2);
+
+          spawnFX(dr.x,dr.y,'#ffcc00',15,3,1.5);
+
+          bloodPools.push({x:dr.x,y:gY,r:30,alpha:.6,life:300});
+
+          playSound('bosshit');
+
+          addScorePopup(dr.x,dr.y-30,'💥 EXPLOSION!','#ff6600');
+
+          return false; // drone destroyed
+
+        }
+
+      } else {
+
+        // Patrol near player
+
+        const tx=G.player.x+(Math.cos(dr.wobble)*150);
+
+        const ty=G.player.y-140+Math.sin(dr.wobble*0.7)*30;
+
+        dr.vx+=(tx-dr.x)*0.04;dr.vy+=(ty-dr.y)*0.04;
+
+        dr.vx*=0.88;dr.vy*=0.88;
+
+        dr.x+=dr.vx;dr.y+=dr.vy;
+
+      }
+
+    } else if(def.hasBomb){
+
+      // Bomber — hover above enemies and drop bombs
+
+      if(nearest){
+
+        const tx=nearest.x, ty=G.player.y-160;
+
+        dr.vx+=(tx-dr.x)*0.03;dr.vy+=(ty-dr.y)*0.03;
+
+        dr.vx*=0.9;dr.vy*=0.9;
+
+        const spd=Math.hypot(dr.vx,dr.vy);
+
+        if(spd>def.speed){dr.vx=dr.vx/spd*def.speed;dr.vy=dr.vy/spd*def.speed;}
+
+        dr.x+=dr.vx;dr.y+=dr.vy;
+
+        // Drop bomb
+
+        dr.shootTimer--;
+
+        if(dr.shootTimer<=0){
+
+          dr.shootTimer=def.fireRate;
+
+          // Create bomb projectile
+
+          G.bullets.push({
+
+            x:dr.x, y:dr.y, vx:0, vy:4,
+
+            dmg:def.bombDmg, col:'#ff8800',
+
+            life:60, isBomb:true, bombRadius:def.bombRadius,
+
+          });
+
+          addScorePopup(dr.x,dr.y-20,'💣','#ff8800');
+
+        }
+
+      } else {
+
+        // Follow player
+
+        const tx=G.player.x+80, ty=G.player.y-150;
+
+        dr.vx+=(tx-dr.x)*0.05;dr.vy+=(ty-dr.y)*0.05;
+
+        dr.vx*=0.85;dr.vy*=0.85;
+
+        dr.x+=dr.vx;dr.y+=dr.vy;
+
+      }
+
+    } else {
+
+      // Scout / Gunship — follow player and shoot enemies
+
+      const offset = dr.defId==='gunship' ? 120 : 90;
+
+      const tx = G.player.x + (dr.wobble<Math.PI?offset:-offset);
+
+      const ty = G.player.y - 130 + Math.sin(dr.wobble)*20;
+
+      dr.vx+=(tx-dr.x)*0.06;dr.vy+=(ty-dr.y)*0.06;
+
+      dr.vx*=0.82;dr.vy*=0.82;
+
+      const spd=Math.hypot(dr.vx,dr.vy);
+
+      if(spd>def.speed){dr.vx=dr.vx/spd*def.speed;dr.vy=dr.vy/spd*def.speed;}
+
+      dr.x+=dr.vx;dr.y+=dr.vy;
+
+
+      if(nearest){
+
+        dr.shootTimer--;
+
+        if(dr.shootTimer<=0){
+
+          dr.shootTimer=def.fireRate;
+
+          const ang=Math.atan2(nearest.y-nearest.h/2-dr.y,nearest.x-dr.x);
+
+          G.bullets.push({
+
+            x:dr.x,y:dr.y,
+
+            vx:Math.cos(ang)*16,vy:Math.sin(ang)*16,
+
+            dmg:def.dmg,col:def.col,life:70,fromDrone:true,
+
+          });
+
+          spawnFX(dr.x,dr.y,def.col,3,1.5);
+
+        }
+
+      }
+
+    }
+
+
+    dr.angle = Math.atan2(dr.vy, dr.vx);
+
+    return true;
+
+  });
+
+}
+
+
+function drawDrones(){
+
+  activeDrones.forEach(dr=>{
+
+    const dx=dr.x-G.camX, dy=dr.y;
+
+    const def=dr.def;
+
+    const isKami=def.suicide;
+
+    ctx.save();
+
+    ctx.translate(dx,dy);
+
+    ctx.shadowColor=def.col;ctx.shadowBlur=isKami?20:12;
+
+
+    // Shadow on ground
+
+    const groundSY=canvas.height-120;
+
+    ctx.save();
+
+    ctx.globalAlpha=0.2;ctx.fillStyle='#000';
+
+    ctx.beginPath();ctx.ellipse(0,groundSY-dy,20,5,0,0,Math.PI*2);ctx.fill();
+
+    ctx.restore();
+
+
+    // Drone body
+
+    ctx.rotate(isKami?dr.angle:Math.sin(dr.wobble)*0.06);
+
+    ctx.fillStyle=isKami?'#ff2200':'#1a1a2a';
+
+    ctx.beginPath();ctx.ellipse(0,0,16,8,0,0,Math.PI*2);ctx.fill();
+
+    // Center pod
+
+    ctx.fillStyle=def.col;
+
+    ctx.beginPath();ctx.ellipse(0,0,8,5,0,0,Math.PI*2);ctx.fill();
+
+    // Camera eye
+
+    ctx.fillStyle='#00ffff';
+
+    ctx.beginPath();ctx.arc(8,2,3,0,Math.PI*2);ctx.fill();
+
+    ctx.fillStyle='#004488';
+
+    ctx.beginPath();ctx.arc(9,2,1.5,0,Math.PI*2);ctx.fill();
+
+
+    // Arms + rotors (4 rotors)
+
+    const armAngles=[Math.PI/4,3*Math.PI/4,5*Math.PI/4,7*Math.PI/4];
+
+    armAngles.forEach((a,i)=>{
+
+      const ax=Math.cos(a)*18,ay=Math.sin(a)*8;
+
+      ctx.fillStyle='#2a2a3a';ctx.lineWidth=1.5;
+
+      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(ax,ay);ctx.stroke();
+
+      // Rotor disc (spinning)
+
+      ctx.save();ctx.translate(ax,ay);ctx.rotate(dr.rotorAngle*(i%2===0?1:-1));
+
+      ctx.fillStyle=`rgba(180,220,255,0.35)`;
+
+      ctx.beginPath();ctx.ellipse(0,0,12,3,0,0,Math.PI*2);ctx.fill();
+
+      ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=1;
+
+      ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(12,0);ctx.stroke();
+
+      ctx.restore();
+
+    });
+
+
+    // Bomb indicator
+
+    if(def.hasBomb && !def.suicide){
+
+      ctx.fillStyle='#ff8800';
+
+      ctx.beginPath();ctx.ellipse(0,10,5,7,0,0,Math.PI*2);ctx.fill();
+
+      ctx.fillStyle='#ffcc00';
+
+      ctx.beginPath();ctx.arc(0,7,3,0,Math.PI*2);ctx.fill();
+
+    }
+
+
+    // Kamiaze red nose
+
+    if(isKami){
+
+      ctx.fillStyle='#ff4400';
+
+      ctx.beginPath();ctx.arc(14,0,4,0,Math.PI*2);ctx.fill();
+
+      ctx.fillStyle='#ff0000';
+
+      ctx.beginPath();ctx.ellipse(14,0,6,3,0,0,Math.PI*2);ctx.fill();
+
+    }
+
+
+    // Life bar if not kamiaze
+
+    if(!isKami){
+
+      const lifeW=30, lifePct=dr.life/1200;
+
+      ctx.fillStyle='#000';ctx.fillRect(-lifeW/2,-18,lifeW,4);
+
+      ctx.fillStyle=def.col;ctx.fillRect(-lifeW/2,-18,lifeW*lifePct,4);
+
+    }
+
+
+    // Targeting laser to nearest enemy (scout/gunship)
+
+    if(!def.hasBomb && !isKami && dr.target){
+
+      const tx=dr.target.x-G.camX-dx, ty=dr.target.y-dr.target.h/2-dy;
+
+      ctx.save();ctx.globalAlpha=0.3;
+
+      ctx.strokeStyle='#ff0000';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+
+      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(tx,ty);ctx.stroke();
+
+      ctx.setLineDash([]);ctx.restore();
+
+    }
+
+
+    ctx.restore();
+
+  });
+
+}
+
+
+// Handle bomb bullets hitting ground/enemies
+
+function updateBombs(){
+
+  G.bullets = G.bullets.filter(b=>{
+
+    if(!b.isBomb) return true;
+
+    b.x+=b.vx;b.y+=b.vy;b.life--;
+
+    const groundSY = canvas.height-120;
+
+    const worldGroundY = G.player.groundY;
+
+    // Hit ground
+
+    if(b.y > worldGroundY+10 || b.life<=0){
+
+      // Explosion
+
+      for(let ei=G.enemies.length-1;ei>=0;ei--){
+
+        const e=G.enemies[ei];
+
+        const d=Math.hypot(e.x-b.x,e.y-e.h/2-b.y);
+
+        if(d<b.bombRadius){
+
+          e.hp-=b.dmg*(1-d/b.bombRadius*0.5);e.flash=12;
+
+          if(e.hp<=0)killEnemy(ei);
+
+        }
+
+      }
+
+      spawnFX(b.x,worldGroundY,'#ff6600',18,4,2);
+
+      spawnFX(b.x,worldGroundY,'#ffcc00',10,3);
+
+      bloodPools.push({x:b.x,y:worldGroundY,r:25,alpha:.5,life:250});
+
+      addScorePopup(b.x,worldGroundY-40,'💥','#ff6600');
+
+      playSound('bosshit');
+
+      return false;
+
+    }
+
+    return true;
+
+  });
+
+}
+
+
+// ── CANVAS / CONTEXT ──
+
+const canvas = document.getElementById('gc');
+
+const ctx = canvas.getContext('2d');
+
+
+// ── GAME STATE ──
+
+let G = {};
+
+
+function initGlobal(){
+
+  G = {
+
+    mode:'campaign',
+
+    money:0, score:0, kills:0,
+
+    hp:100, maxHp:100,
+
+    cleared:[], currentDept:null,
+
+    weaponsOwned:['glock'], equippedWeapon:'glock',
+
+    ammo:{glock:15,mac10:0,shotgun:0,ak47:0,ar15:0,spas:0,svd:0,m249:0},
+
+    dronesOwned:[], // drone ids owned
+
+    droneCharges:{scout:0,bomber:0,kamiaze:0,gunship:0}, // charges per drone type
+
+    // game objects
+
+    player:null, bullets:[], eBullets:[], enemies:[], particles:[], floats:[],
+
+    // input
+
+    keys:{}, mouse:{x:400,y:300,down:false},
+
+    joystick:null, touchFire:false, touchFirePos:null,
+
+    // timers
+
+    shootTimer:0, waveNum:1, waveTotal:0, waveSpawned:0, waveSpawnTimer:0,
+
+    // survival
+
+    survTimer:0, survMaxTime:600*60, survWave:1, survSpawnTimer:30, survRunning:false,
+
+    // scrolling world
+
+    camX:0, worldW:4000,
+
+    // walk animation
+
+    tick:0,
+
+    noAmmoFlash:false,
+
+  };
+
+}
+
+
+// ── RESIZE ──
+
+function resize(){
+
+  canvas.width = window.innerWidth;
+
+  canvas.height = window.innerHeight - (document.getElementById('hud').offsetHeight||36);
+
+}
+
+window.addEventListener('resize', ()=>{ if(G.player) resize(); });
+
+
+// ── UTILS ──
+
+const $ = id => document.getElementById(id);
+
+function show(id){ $(id).classList.remove('off'); }
+
+function hide(id){ $(id).classList.add('off'); }
+
+const SCREENS = ['s-menu','s-map','s-brief','s-surv','s-shop','s-over','s-win','game-wrap'];
+
+function showOnly(...ids){ SCREENS.forEach(s=>hide(s)); ids.forEach(s=>show(s)); }
+
+function getW(){ return WEAPONS.find(w=>w.id===G.equippedWeapon); }
+
+function banner(title, sub='', color='var(--r)'){
+
+  const el=$('banner'), t=$('bn-t'), s=$('bn-s');
+
+  t.textContent=title; t.style.color=color; s.textContent=sub;
+
+  el.style.opacity='1'; clearTimeout(el._t);
+
+  el._t=setTimeout(()=>el.style.opacity='0', 2400);
+
+}
+
+function voodooColor(seed){ return VODOU[Math.abs(seed)%VODOU.length]; }
+
+function hasVoodoo(seed){ return seed%3 !== 0; }
+
+
+function updateHUD(){
+
+  const d = DEPTS[G.currentDept]||{};
+
+  $('h-zone').textContent = G.mode==='survival'?'VIV':d.name||'—';
+
+  $('h-gang').textContent = G.mode==='survival'?'ANSANM':d.boss||'—';
+
+  $('h-wave').textContent = G.mode==='survival'?G.survWave:G.waveNum;
+
+  $('h-kills').textContent = G.kills;
+
+  $('h-money').textContent = '$'+(G.money||0).toFixed(2);
+
+  const curAmmo = G.ammo[G.equippedWeapon]??0;
+
+  const av = $('ammo-val');
+
+  av.textContent = curAmmo;
+
+  av.style.color = curAmmo>20?'var(--y)':curAmmo>5?'#ff8800':'#ff0000';
+
+  av.style.fontFamily = "'Bebas Neue',sans-serif";
+
+  av.style.fontSize = '16px';
+
+  $('hp-fill').style.width = G.hp+'%';
+
+  $('hp-fill').style.background = G.hp>50?'var(--r)':G.hp>25?'#ff8800':'#ff0000';
+
+  if(G.mode==='survival'){
+
+    $('timer-wrap').style.display='flex';
+
+    const rem = Math.max(0, Math.ceil((G.survMaxTime-G.survTimer)/60));
+
+    const m=Math.floor(rem/60), s=rem%60;
+
+    $('h-timer').textContent = m+':'+(s<10?'0':'')+s;
+
+    $('h-timer').style.color = rem<30?'#ff0000':rem<60?'#ff8800':'var(--y)';
+
+  } else {
+
+    $('timer-wrap').style.display='none';
+
+  }
+
+}
+
+
+// ── MAP SETUP ──
+
+function setupMap(){
+
+  Object.keys(DEPTS).forEach(id=>{
+
+    const el = document.getElementById('d-'+id);
+
+    if(!el) return;
+
+    const d = DEPTS[id];
+
+    const cleared = G.cleared.includes(id);
+
+    const unlocked = d.unlocked || G.cleared.some(c=>UNLOCK[c]?.includes(id));
+
+    el.classList.remove('locked','cleared');
+
+    if(cleared) el.classList.add('cleared');
+
+    else if(!unlocked) el.classList.add('locked');
+
+    if(unlocked && !cleared) el.onclick = ()=>openBrief(id);
+
+    else el.onclick = null;
+
+  });
+
+  const va = $('va-node');
+
+  const allCleared = Object.keys(DEPTS).every(id=>G.cleared.includes(id));
+
+  va.style.opacity = allCleared?'1':'.25';
+
+  va.onclick = allCleared ? ()=>{ showOnly('s-surv'); buildSurv(); } : null;
+
+}
+
+
+function openBrief(id){
+
+  G.currentDept = id;
+
+  const d = DEPTS[id];
+
+  $('b-icon').textContent = d.icon;
+
+  $('b-name').textContent = d.gangs[0]||d.name;
+
+  $('b-name').style.color = d.color;
+
+  $('b-zone').textContent = '📍 DÉPARTEMENT '+d.name.toUpperCase();
+
+  $('b-motto').textContent = d.motto||'';
+
+  const gl = $('b-gangs'); gl.innerHTML='';
+
+  d.gangs.forEach((g,i)=>{
+
+    const t=document.createElement('div'); t.className='gtag'+(i<2?' boss-tag':'');
+
+    t.textContent=g; gl.appendChild(t);
+
+  });
+
+  $('b-boss').textContent = d.boss;
+
+  $('b-danger').textContent = '★'.repeat(d.danger)+'☆'.repeat(5-d.danger);
+
+  $('b-waves').textContent = d.waves+' vagues + Boss final';
+
+  $('b-reward').textContent = '$'+d.reward;
+
+  showOnly('s-brief');
+
+}
+
+
+function buildSurv(){
+
+  const chips = $('surv-chips'); chips.innerHTML='';
+
+  Object.values(DEPTS).forEach(d=>{
+
+    const c=document.createElement('div');
+
+    c.style.cssText='background:#1a1a1a;border:1px solid #222;padding:3px 8px;font-size:11px;border-radius:2px;';
+
+    c.innerHTML=`${d.icon} <b style="color:var(--y)">${d.boss}</b>`;
+
+    chips.appendChild(c);
+
+  });
+
+}
+
+
+// ═══════════════════════════════════════════════════════
+
+//  PLAYER INIT
+
+// ═══════════════════════════════════════════════════════
+
+function initPlayer(){
+
+  resize();
+
+  const H = canvas.height;
+
+  const groundY = H - 120; // ground level
+
+  G.player = {
+
+    x: 180, y: groundY,
+
+    w: 36, h: 70,
+
+    vy: 0, vx: 0,
+
+    onGround: true,
+
+    facing: 1, // 1=right, -1=left
+
+    groundY: groundY,
+
+    walkFrame: 0,
+
+    walkTimer: 0,
+
+    invincible: 0,
+
+    alive: true,
+
+  };
+
+  G.camX = 0;
+
+  G.bullets = []; G.eBullets = []; G.enemies = [];
+
+  G.particles = []; G.floats = [];
+
+  bloodPools = []; deadEnemies = []; scorePopups = [];
+
+  activeDrones = [];
+
+  G.keys = {}; G.mouse = {x:400,y:300,down:false};
+
+  G.shootTimer = 0; G.tick = 0; G.noAmmoFlash = false;
+
+  G.joystick = null; G.touchFire = false; G.touchFirePos = null;
+
+}
+
+
+// ═══════════════════════════════════════════════════════
+
+//  ENEMY SPAWN — Side view positions
+
+// ═══════════════════════════════════════════════════════
+
+const ENEMY_TYPES = {
+
+  grunt:  { w:30, h:65, hp:20,  spd:1.4, rw:18, pts:10, ranged:true,  sRate:90,  sDmg:8,  sBSpd:12, col:'#cc2200' },
+
+  shooter:{ w:28, h:62, hp:18,  spd:1.1, rw:25, pts:15, ranged:true,  sRate:60,  sDmg:12, sBSpd:16, col:'#cc2200', weapon:'rifle' },
+
+  fast:   { w:24, h:55, hp:12,  spd:3.0, rw:22, pts:18, ranged:false, sRate:0,   sDmg:0,  sBSpd:0,  col:'#cc2200' },
+
+  brute:  { w:40, h:75, hp:60,  spd:0.9, rw:55, pts:38, ranged:true,  sRate:110, sDmg:16, sBSpd:10, col:'#aa1500', weapon:'shotgun' },
+
+  sniper: { w:28, h:63, hp:20,  spd:0.7, rw:4
+
+      gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.18);
+
+      osc.start(); osc.stop(ac.currentTime+0.18);
+
+    } else if(type==='wave'){
+
+      osc.type='sine'; osc.frequency.setValueAtTime(440,ac.currentTime);
+
+      osc.frequency.exponentialRampToValueAtTime(880,ac.currentTime+0.3);
+
+      gain.gain.setValueAtTime(0.15,ac.currentTime);
+
+      gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.4);
+
+      osc.start(); osc.stop(ac.currentTime+0.4);
+
+    } else if(type==='pickup'){
+
+      osc.type='sine'; osc.frequency.setValueAtTime(660,ac.currentTime);
+
+      osc.frequency.exponentialRampToValueAtTime(1100,ac.currentTime+0.12);
+
+      gain.gain.setValueAtTime(0.1,ac.currentTime);
+
+      gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.15);
+
+      osc.start(); osc.stop(ac.currentTime+0.15);
+
+    } else if(type==='jump'){
+
+      osc.type='sine'; osc.frequency.setValueAtTime(300,ac.currentTime);
+
+      osc.frequency.exponentialRampToValueAtTime(600,ac.currentTime+0.12);
+
+      gain.gain.setValueAtTime(0.08,ac.currentTime);
+
+      gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.14);
+
+      osc.start(); osc.stop(ac.currentTime+0.14);
+
+    } else if(type==='reload'){
+
+      osc.type='triangle'; osc.frequency.setValueAtTime(180,ac.currentTime);
+
+      gain.gain.setValueAtTime(0.08,ac.currentTime);
+
+      gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.1);
+
+      osc.start(); osc.stop(ac.currentTime+0.1);
+
+    }
+
+  } catch(e){}
+
+}
+
+
+// ── BLOOD POOLS on ground ──
+
+let bloodPools = [];
+
+function addBloodPool(x, y){
+
+  bloodPools.push({ x, y, r: 4+Math.random()*8, alpha: 0.7+Math.random()*0.3, life: 600 });
+
+}
+
+
+// ── DEAD ENEMIES (falling animation) ──
+
+let deadEnemies = [];
+
+function addDeadEnemy(e){
+
+  deadEnemies.push({
+
+    x: e.x, y: e.y,
+
+    w: e.w, h: e.h,
+
+    col: e.col,
+
+    facing: e.facing,
+
+    voodoo: e.voodoo,
+
+    voodooCol: e.voodooCol,
+
+    seed: e.seed,
+
+    boss: e.boss,
+
+    rot: 0,
+
+    rotSpd: (Math.random()-.5)*0.18,
+
+    vy: -3,
+
+    life: 90,
+
+    maxLife: 90,
+
+  });
+
+}
+
+
+// ── SCORE POPUPS ──
+
+let scorePopups = [];
+
+function addScorePopup(x, y, text, col='#f5c400'){
+
+  scorePopups.push({ x, y, text, col, life: 80, vy: -1.2 });
+
+}
+
+
+// ═══════════════════════════════════════════════════════
+
+//  ENHANCED KILL — with sounds, death anim, blood pool
+
+// ═══════════════════════════════════════════════════════
+
+function takeDamage(d){
+
+  G.hp = Math.max(0, G.hp-d); updateHUD();
+
+  playSound('hit');
+
+  if(G.hp<=0){ G.mode==='survival'?survEnd(false):gameOver(); }
+
+}
+
+
+function killEnemy(i){
+
+  const e = G.enemies[i]; if(!e) return;
+
+  G.kills++; G.score+=e.pts; G.money+=e.rw;
+
+
+  // Ammo drop
+
+  const drop = e.boss?35:e.ranged?Math.floor(Math.random()*5+3):Math.floor(Math.random()*3+1);
+
+  const w = getW();
+
+  if((G.ammo[w.id]??0)<200){ G.ammo[w.id]=(G.ammo[w.id]??0)+drop; playSound('pickup'); }
+
+
+  // Score popups
+
+  addScorePopup(e.x, e.y-e.h-5, '+$'+e.rw, '#f5c400');
+
+  addScorePopup(e.x+20, e.y-e.h+10, '+'+e.pts+'pts', '#44ffcc');
+
+  addScorePopup(e.x-15, e.y-e.h+20, '+'+drop+'🔹', '#88ccff');
+
+
+  // Death animation
+
+  addDeadEnemy(e);
+
+  // Blood pool on ground
+
+  for(let b=0;b<(e.boss?5:2);b++) addBloodPool(e.x+(Math.random()-.5)*30, e.y+4);
+
+  // Blood FX
+
+  bloodFX(e.x, e.y-e.h/2, e.boss?18:10);
+
+  spawnFX(e.x, e.y-e.h/2, e.col, e.boss?20:8, e.boss?4:2, e.boss?2:1);
+
+
+  // Sound
+
+  playSound(e.boss?'bosshit':'die');
+
+
+  G.enemies.splice(i,1);
+
+  updateHUD();
+
+}
+
+
+// ═══════════════════════════════════════════════════════
+
+//  PHYSICS
+
+// ═══════════════════════════════════════════════════════
+
+const GRAVITY = 0.55;
+
+const JUMP_FORCE = -13;
+
+const MOVE_SPD = 4.2;
+
+
+function updatePlayer(){
+
+  const p = G.player;
+
+  // Horizontal movement
+
+  let dx = 0;
+
+  if(G.keys['a']||G.keys['A']||G.keys['ArrowLeft']) dx = -1;
+
+  if(G.keys['d']||G.keys['D']||G.keys['ArrowRight']) dx = 1;
+
+  if(G.joystick) dx += G.joystick.dx;
+
+  if(Math.abs(dx)>1) dx = Math.sign(dx);
+
+  p.x += dx * MOVE_SPD;
+
+  p.x = Math.max(80, Math.min(G.worldW-80, p.x));
+
+  if(dx!==0) p.facing = Math.sign(dx);
+
+
+  // Jump
+
+  if((G.keys[' ']||G.keys['ArrowUp']||G.keys['w']||G.keys['W']||G.jumpPressed) && p.onGround){
+
+    p.vy = JUMP_FORCE; p.onGround = false; G.jumpPressed=false;
+
+    playSound('jump');
+
+  }
+
+  // Gravity
+
+  p.vy += GRAVITY;
+
+  p.y += p.vy;
+
+  if(p.y >= p.groundY){ p.y=p.groundY; p.vy=0; p.onGround=true; }
+
+
+  // Walk animation
+
+  if(dx!==0 && p.onGround){ p.walkTimer++; if(p.walkTimer>8){p.walkTimer=0;p.walkFrame=(p.walkFrame+1)%4;} }
+
+  else p.walkFrame=0;
+
+
+  // Camera follow
+
+  const targetCamX = p.x - canvas.width/2;
+
+  G.camX += (targetCamX - G.camX)*0.1;
+
+  G.camX = Math.max(0, Math.min(G.worldW - canvas.width, G.camX));
+
+
+  if(p.invincible>0) p.invincible--;
+
+}
+
+
+// ═══════════════════════════════════════════════════════
+
+//  UPDATE
+
+// ═══════════════════════════════════════════════════════
+
+function update(){
+
+  if(!G.player) return;
+
+  G.tick++;
+
+
+  updatePlayer();
+
+
+  // Shoot
+
+  if(G.mouse.down || G.touchFire) shoot();
+
+  if(G.shootTimer>0) G.shootTimer--;
+
+
+  // Auto-switch weapon if empty
+
+  if((G.ammo[G.equippedWeapon]??0)===0){
+
+    const alt = G.weaponsOwned.find(id=>id!==G.equippedWeapon&&(G.ammo[id]??0)>0);
+
+    if(alt){ G.equippedWeapon=alt; addFloat(G.player.x,G.player.y-G.player.h-30,'→ '+WEAPONS.find(w=>w.id===alt)?.name,'#88ccff'); }
+
+  }
+
+
+  // Campaign spawn
+
+  if(G.mode==='campaign'){
+
+    if(G.waveSpawned < G.waveTotal){
+
+      G.waveSpawnTimer--;
+
+      if(G.waveSpawnTimer<=0){
+
+        const d = DEPTS[G.currentDept];
+
+        const isBoss = G.waveNum > d.waves;
+
+        const pool = isBoss ? [d.members[d.members.length-1]] : d.members.slice(0,-1);
+
+        spawnEnemy(pool[Math.floor(Math.random()*pool.length)], Math.random()>.3);
+
+        G.waveSpawned++;
+
+        G.waveSpawnTimer = Math.max(40, 180 - G.waveNum*20);
+
+      }
+
+    }
+
+  }
+
+
+  // Survival spawn
+
+  if(G.mode==='survival' && G.survRunning){
+
+    G.survTimer++;
+
+    if(G.survTimer>=G.survMaxTime){ survEnd(true); return; }
+
+    G.survSpawnTimer--;
+
+    const rate = Math.max(25, 100-G.survWave*5);
+
+    if(G.survSpawnTimer<=0){
+
+      const pool=['viv_grunt','viv_brute','viv_sniper','viv_fast','grunt','shooter','fast','brute','sniper'];
+
+      const w2=Math.min(G.survWave,10);
+
+      spawnEnemy(pool[Math.floor(Math.random()*Math.min(pool.length,3+w2))], Math.random()>.3);
+
+      G.survSpawnTimer=rate;
+
+    }
+
+    if(G.survTimer%3600===0){
+
+      G.survWave++;
+
+      banner('VAGUE '+G.survWave,'VIV ANSANM — PLUS FORTS!','#f5c400');
+
+      G.survRunning=false; openShop();
+
+    }
+
+    updateHUD();
+
+  }
+
+
+  // Player bullets
+
+  G.bullets = G.bullets.filter(b=>{
+
+    b.x+=b.vx; b.y+=b.vy; b.life--;
+
+    if(b.life<=0) return false;
+
+    let hit=false;
+
+    for(let ei=G.enemies.length-1;ei>=0;ei--){
+
+      const e=G.enemies[ei];
+
+      if(!hit && Math.abs(b.x-e.x)<e.w/2+4 && b.y>e.y-e.h && b.y<e.y+8){
+
+        hit=true; e.hp-=b.dmg; e.flash=10;
+
+        spawnFX(b.x,b.y,b.col,3,1.5);
+
+        if(e.hp<=0) killEnemy(ei);
+
+      }
+
+    }
+
+    return !hit;
+
+  });
+
+
+  // Enemy bullets
+
+  const p=G.player;
+
+  G.eBullets = G.eBullets.filter(b=>{
+
+    b.x+=b.vx; b.y+=b.vy; b.life--;
+
+    if(b.life<=0||b.x<G.camX-100||b.x>G.camX+canvas.width+100) return false;
+
+    if(p.invincible===0 && Math.abs(b.x-p.x)<18 && b.y>p.y-p.h && b.y<p.y+10){
+
+      takeDamage(b.dmg); p.invincible=45;
+
+      spawnFX(p.x,p.y-p.h/2,'#ff0000',7,2.5); return false;
+
+    }
+
+    return true;
+
+  });
+
+
+  // Enemies AI — side view
+
+  G.enemies.forEach((e,i)=>{
+
+    // Gravity on enemies too
+
+    if(!e.onGround){ e.vy=(e.vy||0)+GRAVITY; e.y+=e.vy; }
+
+    if(e.y>=e.groundY){ e.y=e.groundY; e.vy=0; e.onGround=true; }
+
+
+    const dist=e.x-p.x;
+
+    const absDist=Math.abs(dist);
+
+    e.facing = dist>0?-1:1;
+
+
+    if(e.ranged){
+
+      const keepDist = e.snipe?400:200;
+
+      if(absDist>keepDist){ e.x+=e.facing*e.spd; }
+
+      else if(absDist<80){ e.x-=e.facing*e.spd*0.5; }
+
+      // Walk anim
+
+      if(e.onGround){ e.walkTimer=(e.walkTimer||0)+1; if(e.walkTimer>8){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%4;} }
+
+      // Shoot at player
+
+      e.shootTimer--;
+
+      if(e.shootTimer<=0){
+
+        e.shootTimer=e.sRate||80;
+
+        const spread = e.snipe?0.02:0.12;
+
+        const angle = Math.atan2((p.y-p.h/2)-(e.y-e.h/2), p.x-e.x)+(Math.random()-.5)*spread;
+
+        G.eBullets.push({x:e.x+e.facing*20,y:e.y-e.h*0.55,vx:Math.cos(angle)*(e.sBSpd||10),vy:Math.sin(angle)*(e.sBSpd||10),life:120,dmg:e.sDmg||8,snipe:e.snipe});
+
+      }
+
+    } else {
+
+      // Melee rush
+
+      e.x += e.facing*e.spd;
+
+      e.walkTimer=(e.walkTimer||0)+1; if(e.walkTimer>6){e.walkTimer=0;e.walkFrame=(e.walkFrame+1)%4;}
+
+    }
+
+    if(e.flash>0) e.flash--;
+
+    // Touch player
+
+    if(p.invincible===0 && absDist<e.w/2+12 && e.y-e.h<p.y+5 && e.y>p.y-p.h-5){
+
+      takeDamage(e.boss?18:e.w>36?12:8); p.invincible=50;
+
+      spawnFX(p.x,p.y-p.h/2,'#ff0000',8,3);
+
+    }
+
+  });
+
+
+  // FX
+
+  G.particles.forEach(pt=>{pt.x+=pt.vx;pt.y+=pt.vy;pt.vx*=.88;pt.vy+=pt.isBlood?.2:.05;pt.life--;});
+
+  G.particles=G.particles.filter(pt=>pt.life>0);
+
+  G.floats.forEach(ft=>{ft.y+=ft.vy;ft.life--;});
+
+  G.floats=G.floats.filter(ft=>ft.life>0);
+
+
+  // Dead enemies falling
+
+  deadEnemies.forEach(d=>{
+
+    d.vy+=0.4; d.y+=d.vy; d.rot+=d.rotSpd; d.life--;
+
+    if(d.y>d.y+20) d.vy*=0.85;
+
+  });
+
+  deadEnemies=deadEnemies.filter(d=>d.life>0);
+
+
+  // Drones
+
+  updateDrones();
+
+  updateBombs();
+
+
+  // Blood pools fade
+
+  bloodPools.forEach(bp=>bp.life--);
+
+  bloodPools=bloodPools.filter(bp=>bp.life>0);
+
+
+  // Score popups
+
+  scorePopups.forEach(sp=>{sp.y+=sp.vy;sp.life--;});
+
+  scorePopups=scorePopups.filter(sp=>sp.life>0);
+
+
+  // Campaign wave end
+
+  if(G.mode==='campaign' && G.waveSpawned>=G.waveTotal && G.enemies.length===0){
+
+    const d=DEPTS[G.currentDept];
+
+    if(G.waveNum>d.waves) zoneWin();
+
+    else { G.hp=Math.min(100,G.hp+10); openShop(); }
+
+  }
+
+}
+
+
+// ═══════════════════════════════════════════════════════
+
+//  DRAW — SIDE VIEW
+
+// ═══════════════════════════════════════════════════════
+
+function drawScene(){
+
+  const W=canvas.width, H=canvas.height;
+
+  const gY = H - 120; // ground line on screen
+
+
+  // SKY gradient — Haiti sunny day
+
+  const skyGrad = ctx.createLinearGradient(0,0,0,gY);
+
+  skyGrad.addColorStop(0,'#5ba3d9');
+
+  skyGrad.addColorStop(1,'#a8d4f0');
+
+  ctx.fillStyle=skyGrad; ctx.fillRect(0,0,W,gY);
+
+
+  // Sun
+
+  ctx.save();
+
+  ctx.fillStyle='#fffaaa'; ctx.shadowColor='#fff'; ctx.shadowBlur=30;
+
+  ctx.beginPath(); ctx.arc(W-80,60,28,0,Math.PI*2); ctx.fill();
+
+  ctx.restore();
+
+
+  // Mountains / hills background (parallax)
+
+  ctx.fillStyle='#6a8a3a';
+
+  const px2=G.camX*0.15;
+
+  for(let i=0;i<8;i++){
+
+    const mx=((i*280-px2)%(W+280))-40;
+
+    const mh=80+i%3*40;
+
+    ctx.beginPath(); ctx.moveTo(mx,gY); ctx.lineTo(mx+140,gY-mh); ctx.lineTo(mx+280,gY); ctx.closePath(); ctx.fill();
+
+  }
+
+  ctx.fillStyle='#4a6a2a';
+
+  for(let i=0;i<6;i++){
+
+    const mx=((i*340+120-px2*0.7)%(W+340))-60;
+
+    ctx.beginPath(); ctx.moveTo(mx,gY); ctx.lineTo(mx+170,gY-110); ctx.lineTo(mx+340,gY); ctx.closePath(); ctx.fill();
+
+  }
+
+
+  // Houses / buildings (mid parallax)
+
+  const px3=G.camX*0.4;
+
+  ctx.fillStyle='#c4a35a';
+
+  for(let i=0;i<10;i++){
+
+    const bx=((i*220-px3)%(W+220))-20;
+
+    const bh=60+i%4*20;
+
+    ctx.fillRect(bx,gY-bh,80,bh);
+
+    // Roof
+
+    ctx.fillStyle='#d42b2b'; ctx.beginPath();
+
+    ctx.moveTo(bx-5,gY-bh); ctx.lineTo(bx+40,gY-bh-20); ctx.lineTo(bx+85,gY-bh);
+
+    ctx.closePath(); ctx.fill();
+
+    // Window
+
+    ctx.fillStyle='#ffeebb';
+
+    ctx.fillRect(bx+15,gY-bh+15,18,14);
+
+    ctx.fillRect(bx+48,gY-bh+15,18,14);
+
+    ctx.fillStyle='#c4a35a';
+
+  }
+
+
+  // GROUND — dirt road
+
+  const groundGrad=ctx.createLinearGradient(0,gY,0,H);
+
+  groundGrad.addColorStop(0,'#8B7355'); groundGrad.addColorStop(0.15,'#6B5B3E'); groundGrad.addColorStop(1,'#4a3d28');
+
+  ctx.fillStyle=groundGrad; ctx.fillRect(0,gY,W,H-gY);
+
+  // Road center line
+
+  ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.setLineDash([30,20]);
+
+  ctx.beginPath(); ctx.moveTo(0,gY+20); ctx.lineTo(W,gY+20); ctx.stroke();
+
+  ctx.setLineDash([]);
+
+  // Ground texture lines
+
+  ctx.strokeStyle='rgba(0,0,0,.2)'; ctx.lineWidth=1;
+
+  for(let i=0;i<5;i++){
+
+    ctx.beginPath();ctx.moveTo(0,gY+40+i*14);ctx.lineTo(W,gY+40+i*14);ctx.stroke();
+
+  }
+
+  // Pebbles
+
+  ctx.fillStyle='rgba(0,0,0,.25)';
+
+  for(let i=0;i<20;i++){
+
+    const rx=((i*137+G.camX*0.2)%(W+20))%W;
+
+    ctx.beginPath();ctx.ellipse(rx,gY+50+i%4*12,3,2,0,0,Math.PI*2);ctx.fill();
+
+  }
+
+  // Grass tufts on ground edge
+
+  ctx.fillStyle='#3a7a20';
+
+  for(let i=0;i<30;i++){
+
+    const gx=((i*83-G.camX*0.8+G.camX%83)%(W+40))-20;
+
+    ctx.fillRect(gx, gY-12, 6, 14);
+
+    ctx.fillRect(gx+4,gY-8, 4, 10);
+
+  }
+
+}
+
+
+// ── DRAW GANG MEMBER (side view, face visible) ──
+
+function drawGangSide(e){
+
+  const s = e.w/22;
+
+  const x=0, y=0; // translated already
+
+  const facing = e.facing; // 1=right, -1=left
+
+  const col = e.flash>0?'#fff':e.col;
+
+  const skin = e.flash>0?'#fff':'#8B5030';
+
+  const wf = (e.walkFrame||0);
+
+  // Walk bob
+
+  const bob = e.onGround ? Math.sin(wf*Math.PI/2)*3 : 0;
+
+
+  ctx.save();
+
+  ctx.translate(0, bob);
+
+  // Flip if facing left
+
+  ctx.restore();
+
+
+  // === NECK ===
+
+  ctx.fillStyle=skin;
+
+  ctx.fillRect(-3*s,-H*0.72,6*s,5*s);
+
+
+  // === TÊTE (side view avec visage) ===
+
+  const hr = 12*s; // head radius
+
+  const hx = 0, hy = -H*0.78;
+
+
+  // Tête
+
+  ctx.fillStyle = e.flash?'#fff':skin;
+
+  ctx.beginPath(); ctx.arc(hx,hy,hr,0,Math.PI*2); ctx.fill();
+
+
+  // Oreille
+
+  ctx.fillStyle=skin;
+
+  ctx.beginPath(); ctx.ellipse(-hr+2*s,hy,3*s,4*s,0.1,0,Math.PI*2); ctx.fill();
+
+
+  // Cheveux courts
+
+  ctx.fillStyle='#1a0a00';
+
+  ctx.beginPath(); ctx.arc(hx,hy,hr,Math.PI,0); ctx.fill();
+
+  ctx.fillRect(-hr,hy-3*s,hr*2,5*s);
+
+
+  // Œil (de profil)
+
+  ctx.fillStyle='#fff';
+
+  ctx.beginPath(); ctx.ellipse(hr*0.4,hy-1*s,3.5*s,2.5*s,0,0,Math.PI*2); ctx.fill();
+
+  ctx.fillStyle='#1a0a00';
+
+  ctx.beginPath(); ctx.arc(hr*0.55,hy-1*s,2*s,0,Math.PI*2); ctx.fill();
+
+  ctx.fillStyle='#fff'; // reflection
+
+  ctx.beginPath(); ctx.arc(hr*0.65,hy-2*s,0.8*s,0,Math.PI*2); ctx.fill();
+
+
+  // Sourcil
+
+  ctx.fillStyle='#1a0a00'; ctx.lineWidth=1.5;
+
+  ctx.beginPath(); ctx.moveTo(hr*0.1,hy-5*s); ctx.lineTo(hr*0.75,hy-5.5*s); ctx.stroke();
+
+
+  // BANDANA rouge (couvre la bouche/nez bas du visage)
+
+  ctx.fillStyle=e.flash?'#ff8888':'#cc2200';
+
+  ctx.beginPath(); ctx.arc(hx,hy,hr,0.2,Math.PI-.2); ctx.fill();
+
+  // Nœud à l'arrière
+
+  ctx.fillStyle='#991a00';
+
+  ctx.beginPath(); ctx.ellipse(-hr+1*s,hy,3*s,2*s,0.3,0,Math.PI*2); ctx.fill();
+
+  // Narines et nez visible (au-dessus du bandana)
+
+  ctx.fillStyle=skin;
+
+  ctx.beginPath(); ctx.arc(hr*0.55,hy+0.5*s,2*s,Math.PI*1.3,Math.PI*0.3,true); ctx.fill();
+
+
+  // HP bar
+
+  if(e.maxHp>20){
+
+    ctx.fillStyle='#000'; ctx.fillRect(-e.w/2,8*s,e.w,5);
+
+    ctx.fillStyle=e.col; ctx.fillRect(-e.w/2,8*s,e.w*(e.hp/e.maxHp),5);
+
+    if(e.boss){
+
+      ctx.fillStyle='#fff'; ctx.font=`bold ${5*s}px Bebas Neue,sans-serif`;
+
+      ctx.textAlign='center'; ctx.fillText('BOSS',0,15*s);
+
+    }
+
+  }
+
+
+  ctx.restore(); // flip
+
+  ctx.restore(); // bob
+
+}
+
+
+// ── DRAW PLAYER (side view, facing direction) ──
+
+function drawPlayer(){
+
+  const p = G.player;
+
+  if(p.invincible>0 && Math.floor(p.invincible/5)%2===1) return;
+
+
+  const sx = p.x - G.camX;
+
+  const sy = canvas.height - 120; // ground screen Y
+
+  const H = p.h;
+
+  const s = H/70;
+
+  const facing = p.facing;
+
+  const wf = p.walkFrame;
+
+  const bob = p.onGround ? Math.sin(wf*Math.PI/2)*3 : 0;
+
+  const inAir = p.y < p.groundY;
+
+
+  ctx.save();
+
+  ctx.translate(sx, sy + (p.y - p.groundY) + bob);
+
+  if(facing===-1) ctx.scale(-1,1);
+
+
+  // Shadow
+
+  ctx.fillStyle='rgba(0,0,0,.25)';
+
+  ctx.beginPath(); ctx.ellipse(0,5,p.w/2,5,0,0,Math.PI*2); ctx.fill();
+
+
+  // Legs (walk)
+
+  const legA = inAir ? 0.4 : Math.sin(G.tick*0.22)*0.55;
+
+  ctx.save(); ctx.translate(-5*s,-H*0.25); ctx.rotate(-legA);
+
+  ctx.fillStyle='#1a3a6a'; ctx.fillRect(-4*s,0,6*s,H*0.38);
+
+  ctx.fillStyle='#1a2a50'; ctx.fillRect(-4*s,H*0.3,8*s,H*0.09);
+
+  ctx.fillStyle='#3a2a0a';
+
+  ctx.beginPath(); ctx.ellipse(1*s,H*0.4,7*s,3*s,0.1,0,Math.PI*2); ctx.fill(); ctx.restore();
+
+
+  ctx.save(); ctx.translate(5*s,-H*0.25); ctx.rotate(legA);
+
+  ctx.fillStyle='#1a3a6a'; ctx.fillRect(-4*s,0,6*s,H*0.38);
+
+  ctx.fillStyle='#1a2a50'; ctx.fillRect(-4*s,H*0.3,8*s,H*0.09);
+
+  ctx.fillStyle='#3a2a0a';
+
+  ctx.beginPath(); ctx.ellipse(1*s,H*0.4,7*s,3*s,0.1,0,Math.PI*2); ctx.fill(); ctx.restore();
+
+
+  // Body — vest / uniform bleu
+
+  ctx.fillStyle='#1a4a8a';
+
+  ctx.beginPath(); ctx.moveTo(-9*s,-H*0.7); ctx.lineTo(9*s,-H*0.7);
+
+  ctx.lineTo(10*s,-H*0.26); ctx.lineTo(-10*s,-H*0.26); ctx.closePath(); ctx.fill();
+
+  // Vest details
+
+  ctx.fillStyle='#122a60';
+
+  ctx.fillRect(-5*s,-H*0.65,10*s,H*0.3);
+
+  ctx.fillStyle='#f5c400'; // badge
+
+  ctx.beginPath(); ctx.arc(0,-H*0.5,3*s,0,Math.PI*2); ctx.fill();
+
+
+  // Arms
+
+  const armA = inAir ? 0.6 : Math.sin(G.tick*0.22)*0.4;
+
+  ctx.save(); ctx.translate(-10*s,-H*0.6); ctx.rotate(armA);
+
+  ctx.fillStyle='#1a4a8a'; ctx.fillRect(-3*s,0,4*s,H*0.28);
+
+  ctx.fillStyle='#f0c080'; ctx.fillRect(-3*s,H*0.2,4*s,H*0.1); ctx.restore();
+
+
+  // Gun arm
+
+  const w = getW();
+
+  ctx.save(); ctx.translate(10*s,-H*0.6); ctx.rotate(-armA*0.5);
+
+  ctx.fillStyle='#1a4a8a'; ctx.fillRect(-1*s,0,4*s,H*0.28);
+
+  ctx.fillStyle='#f0c080'; ctx.fillRect(-1*s,H*0.2,4*s,H*0.1);
+
+  // Weapon
+
+  ctx.translate(4*s,H*0.05);
+
+  ctx.fillStyle='#222';
+
+  if(w.id==='m249'){ctx.fillRect(0,-2*s,24*s,4*s);ctx.fillRect(20*s,-5*s,3*s,10*s);ctx.fillRect(6*s,2*s,5*s,6*s);}
+
+  else if(w.id==='svd'){ctx.fillRect(0,-2*s,28*s,3.5*s);ctx.fillRect(26*s,-4*s,2*s,8*s);ctx.fillRect(10*s,-5*s,4*s,4*s);}
+
+  else if(w.id==='spas'||w.id==='shotgun'){ctx.fillRect(0,-2.5*s,18*s,5*s);ctx.fillRect(16*s,-5*s,2*s,10*s);}
+
+  else if(w.id==='ak47'){ctx.fillRect(0,-2*s,20*s,4*s);ctx.fillRect(18*s,-4*s,2*s,8*s);ctx.fillRect(8*s,2*s,4*s,6*s);}
+
+  else{ctx.fillRect(0,-2*s,13*s,3.5*s);ctx.fillRect(11*s,-4*s,2*s,7*s);}
+
+  // Muzzle flash
+
+  if(G.shootTimer>14){
+
+    ctx.fillStyle='#ffff88';
+
+    ctx.beginPath();ctx.arc(w.id==='svd'?28*s:w.id==='m249'?24*s:w.id==='ak47'?20*s:13*s,0,4*s,0,Math.PI*2);ctx.fill();
+
+  }
+
+  ctx.restore();
+
+
+  // Neck
+
+  ctx.fillStyle='#f0c080'; ctx.fillRect(-3*s,-H*0.74,6*s,5*s);
+
+
+  // HEAD
+
+  const hr=10*s, hx=0, hy=-H*0.85;
+
+  ctx.fillStyle='#f0c080';
+
+  ctx.beginPath(); ctx.arc(hx,hy,hr,0,Math.PI*2); ctx.fill();
+
+  // Ear
+
+  ctx.beginPath(); ctx.ellipse(-hr+1*s,hy,3*s,4*s,0.1,0,Math.PI*2); ctx.fill();
+
+  // Helmet
+
+  ctx.fillStyle='#0d2d5e';
+
+  ctx.beginPath(); ctx.arc(hx,hy,hr*1.05,Math.PI,0); ctx.fill();
+
+  ctx.fillRect(-hr*1.05,hy-1*s,hr*2.1,5*s);
+
+  ctx.fillStyle='#0a1a3a';ctx.fillRect(-hr*1.05,hy-1*s,hr*2.1,3*s);
+
+  // Visor reflection
+
+  ctx.fillStyle='rgba(100,180,255,0.2)';
+
+  ctx.fillRect(-hr*0.8,hy-1*s,hr*1.6,3*s);
+
+  // Eye
+
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(hr*0.4,hy,3.5*s,2.5*s,0,0,Math.PI*2); ctx.fill();
+
+  ctx.fillStyle='#1a0a00'; ctx.beginPath(); ctx.arc(hr*0.55,hy,2*s,0,Math.PI*2); ctx.fill();
+
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(hr*0.65,hy-1*s,0.7*s,0,Math.PI*2); ctx.fill();
+
+
+  ctx.restore(); // facing flip
+
+  ctx.restore();
+
+}
+
+
+// ─ DRAW BULLETS ─
+
+function drawBullets(){
+
+  G.bullets.forEach(b=>{
+
+    const bx=b.x-G.camX, by=b.y-(G.player.y-G.player.groundY)+(canvas.height-120);
+
+    ctx.save();
+
+    ctx.shadowColor=b.col;ctx.shadowBlur=12;ctx.fillStyle=b.col;
+
+    ctx.translate(bx,by);ctx.rotate(Math.atan2(b.vy,b.vx));
+
+    ctx.beginPath();ctx.ellipse(0,0,9,3,0,0,Math.PI*2);ctx.fill();
+
+    ctx.restore();
+
+  });
+
+  G.eBullets.forEach(b=>{
+
+    const bx=b.x-G.camX, by=canvas.height-120;
+
+    ctx.save();
+
+    ctx.fillStyle=b.snipe?'#ff4444':'#ff8866';
+
+    ctx.shadowColor=b.snipe?'#ff0000':'#ff4400';ctx.shadowBlur=10;
+
+    ctx.translate(bx,by+(b.y||0));ctx.rotate(Math.atan2(b.vy,b.vx));
+
+    ctx.beginPath();ctx.ellipse(0,0,b.snipe?12:8,3,0,0,Math.PI*2);ctx.fill();
+
+    ctx.restore();
+
+  });
+
+}
+
+
+function screenY(e){
+
+  return canvas.height - 120; // all chars stand on same ground line
+
+}
+
+
+function draw(){
+
+  const W=canvas.width,H=canvas.height;
+
+  ctx.fillStyle='#5ba3d9'; ctx.fillRect(0,0,W,H);
+
+
+  drawScene();
+
+
+  if(!G.player) return;
+
+
+  // Draw blood pools on ground
+
+  bloodPools.forEach(bp=>{
+
+    const bx=bp.x-G.camX, by=canvas.height-120+3;
+
+    ctx.save();
+
+    ctx.globalAlpha=(bp.life/600)*bp.alpha*0.7;
+
+    ctx.fillStyle='#8b0000';
+
+    ctx.beginPath();ctx.ellipse(bx,by,bp.r,bp.r*0.4,0,0,Math.PI*2);ctx.fill();
+
+    ctx.restore();
+
+  });
+
+
+  // Draw dead enemies (falling/fading)
+
+  deadEnemies.forEach(de=>{
+
+    const ex=de.x-G.camX, ey=canvas.height-120;
+
+    ctx.save();
+
+    ctx.globalAlpha=(de.life/de.maxLife)*0.8;
+
+    ctx.translate(ex, ey);
+
+    ctx.rotate(de.rot);
+
+    // Simple silhouette of fallen gang member
+
+    ctx.fillStyle=de.col;
+
+    ctx.beginPath();ctx.ellipse(0,0,de.w/2,de.h/6,0,0,Math.PI*2);ctx.fill();
+
+    ctx.fillStyle='#8B5030';
+
+    ctx.beginPath();ctx.arc(de.w*0.35,0,de.w/5,0,Math.PI*2);ctx.fill();
+
+    // Blood around fallen
+
+    ctx.fillStyle='rgba(139,0,0,0.5)';
+
+    ctx.beginPath();ctx.ellipse(0,0,de.w*0.7,de.w*0.3,0,0,Math.PI*2);ctx.fill();
+
+    ctx.restore();
+
+  });
+
+
+  // Particles
+
+  G.particles.forEach(pt=>{
+
+    const px=pt.x-G.camX, py=canvas.height-120+(pt.y-G.player.groundY);
+
+    ctx.save();ctx.globalAlpha=pt.life/36;ctx.fillStyle=pt.col;
+
+    ctx.beginPath();ctx.arc(px,py+pt.y*0,pt.sz,0,Math.PI*2);ctx.fill();ctx.restore();
+
+  });
+
+
+  // Draw enemies
+
+  G.enemies.forEach(e=>{
+
+    const ex=e.x-G.camX, ey=screenY(e);
+
+    ctx.save();ctx.translate(ex,ey);
+
+    ctx.shadowColor=e.col;ctx.shadowBlur=e.boss?14:5;
+
+    drawGangSide(e);
+
+    ctx.restore();
+
+  });
+
+
+  drawBullets();
+
+  drawDrones();
+
+  drawPlayer();
+
+
+  // Score popups (large, animated)
+
+  scorePopups.forEach(sp=>{
+
+    const sx=sp.x-G.camX;
+
+    const sy=canvas.height-120-sp.h-(80-sp.life)*1.1;
+
+    ctx.save();
+
+    ctx.globalAlpha=Math.min(1,sp.life/40);
+
+    const scale=sp.life>60?1+(80-sp.life)*0.015:1;
+
+    ctx.translate(sx,sy);
+
+    ctx.scale(scale,scale);
+
+    ctx.fillStyle=sp.col;
+
+    ctx.font=`bold ${sp.text.includes('$')?16:13}px "Bebas Neue",sans-serif`;
+
+    ctx.textAlign='center';
+
+    ctx.strokeStyle='rgba(0,0,0,0.6)';ctx.lineWidth=3;
+
+    ctx.strokeText(sp.text,0,0);
+
+    ctx.fillText(sp.text,0,0);
+
+    ctx.restore();
+
+  });
+
+
+  // Float texts (smaller, secondary)
+
+  G.floats.forEach(ft=>{
+
+    const fx=ft.x-G.camX, fy=canvas.height-140+ft.vy*((70-ft.life));
+
+    ctx.save();ctx.globalAlpha=ft.life/70;ctx.fillStyle=ft.col;
+
+    ctx.font='bold 12px "Barlow Condensed",sans-serif';ctx.textAlign='center';
+
+    ctx.fillText(ft.txt,fx,fy-ft.life*0.35);ctx.restore();
+
+  });
+
+
+  // HUD overlay — wave info bottom
+
+  if(G.mode==='campaign'){
+
+    const d=DEPTS[G.currentDept]||{};
+
+    ctx.save();
+
+    ctx.fillStyle='rgba(0,0,0,.6)';
+
+    ctx.fillRect(W/2-130,H-30,260,26);
+
+    ctx.fillStyle='#f5c400';
+
+    ctx.font='bold 14px "Bebas Neue",sans-serif';
+
+    ctx.textAlign='center';
+
+    const isBossWave = G.waveNum > d.waves;
+
+    ctx.fillText(isBossWave?`⚠ BOSS FINAL ⚠`:`VAGUE ${G.waveNum}/${d.waves+1} — ${G.enemies.length} ENNEMIS`, W/2, H-12);
+
+    ctx.restore();
+
+
+    // Boss HP bar — shown prominently when boss is alive
+
+    if(isBossWave){
+
+      const boss=G.enemies[0];
+
+      if(boss){
+
+        ctx.save();
+
+        const bw=300, bh=18, bx=(W-bw)/2, by=H-56;
+
+        ctx.fillStyle='rgba(0,0,0,.8)';ctx.fillRect(bx-4,by-4,bw+8,bh+16);
+
+        ctx.fillStyle='#1a0000';ctx.fillRect(bx,by,bw,bh);
+
+        const pct=boss.hp/boss.maxHp;
+
+        const bCol=pct>.5?'#d42b2b':pct>.25?'#ff8800':'#ff0000';
+
+        ctx.fillStyle=bCol;ctx.fillRect(bx,by,bw*pct,bh);
+
+        // Pulsing glow on low HP
+
+        if(pct<0.25){ctx.shadowColor='#ff0000';ctx.shadowBlur=20;}
+
+        ctx.fillStyle='#fff';ctx.font='bold 12px "Bebas Neue",sans-serif';ctx.textAlign='center';
+
+        ctx.fillText(`${d.boss} — ${boss.hp}/${boss.maxHp} HP`,W/2,by+13);
+
+        ctx.restore();
+
+      }
+
+    }
+
+  }
+
+
+  // Weapon name + ammo bar bottom left
+
+  ctx.save();
+
+  const w=getW();
+
+  ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(8,H-50,160,44);
+
+  ctx.fillStyle='#f5c400';ctx.font='bold 16px "Bebas Neue",sans-serif';ctx.textAlign='left';
+
+  ctx.fillText(w.icon+' '+w.name,14,H-32);
+
+  const ammo=G.ammo[w.id]??0;
+
+  ctx.fillStyle=ammo>10?'#88ccff':ammo>3?'#ff8800':'#ff0000';
+
+  ctx.font='bold 14px "Bebas Neue",sans-serif';
+
+  ctx.fillText(ammo+' munitions',14,H-14);
+
+  ctx.restore();
+
+
+  // Drone HUD — bottom right
+
+  if(G.dronesOwned.length>0){
+
+    ctx.save();
+
+    const drones=G.dronesOwned;
+
+    const boxW=50, boxH=52, gap=4;
+
+    const startX=W-(drones.length*(boxW+gap));
+
+    drones.forEach((id,i)=>{
+
+      const def=DRONES.find(d=>d.id===id);
+
+      const charges=G.droneCharges[id]||0;
+
+      const active=activeDrones.filter(a=>a.defId===id).length;
+
+      const bx=startX+i*(boxW+gap), by=H-boxH-4;
+
+      ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(bx,by,boxW,boxH);
+
+      ctx.strokeStyle=charges>0?def.col:'#333';ctx.lineWidth=2;
+
+      ctx.strokeRect(bx,by,boxW,boxH);
+
+      ctx.font='22px serif';ctx.textAlign='center';
+
+      ctx.fillText(def.icon,bx+boxW/2,by+26);
+
+      // Charge count
+
+      ctx.fillStyle=charges>0?'#fff':'#555';
+
+      ctx.font='bold 12px "Bebas Neue",sans-serif';
+
+      ctx.fillText('x'+charges,bx+boxW/2,by+40);
+
+      // Key hint
+
+      ctx.fillStyle='#888';ctx.font='10px "Bebas Neue",sans-serif';
+
+      ctx.fillText('['+(i+1)+']',bx+boxW/2,by+51);
+
+      // Active glow
+
+      if(active>0){
+
+        ctx.fillStyle=def.col+'44';ctx.fillRect(bx,by,boxW,boxH);
+
+        ctx.fillStyle=def.col;ctx.font='9px "Bebas Neue",sans-serif';
+
+        ctx.fillText('EN VOL',bx+boxW/2,by+11);
+
+      }
+
+    });
+
+    ctx.restore();
+
+  }
+
+  if(G.mode==='survival'){
+
+    const prog=G.survTimer/G.survMaxTime;
+
+    const cx=W-42,cy=42,r=28;
+
+    ctx.save();
+
+    ctx.strokeStyle='#1a1a1a';ctx.lineWidth=5;
+
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();
+
+    ctx.strokeStyle=prog>.8?'#ff0000':prog>.6?'#ff8800':'#f5c400';ctx.lineWidth=5;
+
+    ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+prog*Math.PI*2);ctx.stroke();
+
+    ctx.fillStyle='#fff';ctx.font='bold 10px Bebas Neue,sans-serif';
+
+    ctx.textAlign='center';ctx.textBaseline='middle';
+
+    ctx.fillText(Math.ceil(Math.max(0,G.survMaxTime-G.survTimer)/60)+'s',cx,cy);
+
+    ctx.restore();
+
+  }
+
+}
+
+
+// ═══════════════════════════════════════════════════════
+
+//  GAME FLOW
+
+// ═══════════════════════════════════════════════════════
+
+function startCampaign(id){
+
+  G.mode='campaign'; G.currentDept=id;
+
+  G.hp=100; G.waveNum=1; G.kills=0;
+
+  G.ammo={glock:15,mac10:0,shotgun:0,ak47:0,ar15:0,spas:0,svd:0,m249:0};
+
+  G.equippedWeapon='glock';
+
+  initPlayer(); showOnly('game-wrap'); show('hud'); updateHUD();
+
+  beginWave(1);
+
+}
+
+
+function beginWave(n){
+
+  G.waveNum=n;
+
+  const d=DEPTS[G.currentDept];
+
+  const isBoss=n>d.waves;
+
+  G.waveTotal=isBoss?1:3+n*2;
+
+  G.waveSpawned=0; G.waveSpawnTimer=60; G.enemies=[];
+
+  banner(isBoss?`⚠ BOSS : ${d.boss} ⚠`:`VAGUE ${n}`,d.gangs[0],d.color);
+
+  playSound('wave');
+
+  updateHUD();
+
+}
+
+
+function startSurvival(){
+
+  G.mode='survival';
+
+  G.hp=100; G.kills=0;
+
+  G.ammo={glock:20,mac10:0,shotgun:0,ak47:0,ar15:0,spas:0,svd:0,m249:0};
+
+  show('s-over');
+
+}
+
+
+function updateDroneButtons(){
+
+  const container=$('drone-btns');
+
+  if(!container)return;
+
+  container.innerHTML='';
+
+  G.dronesOwned.forEach((id,i)=>{
+
+    const def=DRONES.find(d=>d.id===id);
+
+    const charges=G.droneCharges[id]||0;
+
+    const btn=document.createElement('div');
+
+    btn.style.cssText=`width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.7);border:2px solid ${charges>0?def.col:'#333'};display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:16px;cursor:pointer;`;
+
+    btn.innerHTML=`${def.icon}<span style="font-size:9px;color:${charges>0?'#fff':'#555'}">${charges}</span>`;
+
+    btn.addEventListener('touchstart',ev=>{
+
+      ev.preventDefault();ev.stopPropagation();
+
+      if(charges>0&&G.player){ G.droneCharges[id]--;deployDrone(id);updateDroneButtons(); }
+
+    },{passive:false});
+
+    container.appendChild(btn);
+
+  });
+
+}
+
+
+// ═══════════════════════════════════════════════════════
+
+//  SAUVEGARDE / CHARGEMENT — localStorage
+
+// ═══════════════════════════════════════════════════════
+
+const SAVE_KEY = 'gangschase_v1';
+
+
+function saveGame(){
+
+  try {
+
+    const data = {
+
+      money: G.money,
+
+      score: G.score,
+
+      kills: G.kills,
+
+      cleared: G.cleared,
+
+      weaponsOwned: G.weaponsOwned,
+
+      equippedWeapon: G.equippedWeapon,
+
+      ammo: G.ammo,
+
+      dronesOwned: G.dronesOwned,
+
+      droneCharges: G.droneCharges,
+
+      // Unlock states
+
+      deptUnlocked: Object.fromEntries(Object.entries(DEPTS).map(([k,v])=>[k,v.unlocked])),
+
+      totalRealSpent: G.totalRealSpent||0,
+
+      savedAt: Date.now(),
+
+    };
+
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+
+    return true;
+
+  } catch(e){ return false; }
+
+}
+
+
+function loadGame(){
+
+  try {
+
+    const raw = localStorage.getItem(SAVE_KEY);
+
+    if(!raw) return false;
+
+    const data = JSON.parse(raw);
+
+    G.money = data.money||0;
+
+    G.score = data.score||0;
+
+    G.kills = data.kills||0;
+
+    G.cleared = data.cleared||[];
+
+    G.weaponsOwned = data.weaponsOwned||['glock'];
+
+    G.equippedWeapon = data.equippedWeapon||'glock';
+
+    G.ammo = data.ammo||{glock:15};
+
+    G.dronesOwned = data.dronesOwned||[];
+
+    G.droneCharges = data.droneCharges||{};
+
+    G.totalRealSpent = data.totalRealSpent||0;
+
+    // Restore unlocks
+
+    if(data.deptUnlocked){
+
+      Object.entries(data.deptUnlocked).forEach(([k,v])=>{ if(DEPTS[k]) DEPTS[k].unlocked=v; });
+
+    }
+
+    return true;
+
+  } catch(e){ return false; }
+
+}
+
+
+function resetSave(){
+
+  if(confirm('Effacer toute la progression ?')){
+
+    localStorage.removeItem(SAVE_KEY);
+
+    initGlobal();
+
+    Object.values(DEPTS).forEach((d,i)=>d.unlocked = i<2);
+
+    showOnly('s-menu');
+
+  }
+
+}
+
+
+// Auto-save every 30s during gameplay
+
+setInterval(()=>{ if(G.player) saveGame(); }, 30000);
+
+
+// ═══════════════════════════════════════════════════════
+
+//  SYSTÈME DE PAIEMENT RÉEL
+
+//  Intégration Stripe Checkout (lien externe) +
+
+//  Publicité vidéo rewarded simulée
+
+// ═══════════════════════════════════════════════════════
+
+
+// Prix réels en USD → crédits in-game
+
+const REAL_PACKS = [
+
+  { id:'starter',  label:'Pack Débutant',  usd:0.99,  credits:5.00,  icon:'🎁', bonus:'+ 30 balles Glock' },
+
+  { id:'standard', label:'Pack Standard',  usd:2.99,  credits:18.00, icon:'💰', bonus:'+ AK-47 offert' },
+
+  { id:'pro',      label:'Pack Pro',       usd:4.99,  credits:35.00, icon:'⭐', bonus:'+ Dragunov offert' },
+
+  { id:'elite',    label:'Pack Élite',     usd:9.99,  credits:80.00, icon:'👑', bonus:'+ M249 + Drone Scout' },
+
+];
+
+
+// Stripe payment links — remplace par tes vrais liens Stripe
+
+const STRIPE_LINKS = {
+
+  starter:  'https://buy.stripe.com/REMPLACE_MOI_STARTER',
+
+  standard: 'https://buy.stripe.com/REMPLACE_MOI_STANDARD',
+
+  pro:      'https://buy.stripe.com/REMPLACE_MOI_PRO',
+
+  elite:    'https://buy.stripe.com/REMPLACE_MOI_ELITE',
+
+};
+
+
+// Ouvre Stripe dans un nouvel onglet
+
+function openStripePayment(packId){
+
+  const pack = REAL_PACKS.find(p=>p.id===packId);
+
+  const link = STRIPE_LINKS[packId];
+
+  if(!pack) return;
+
+
+  // Si les liens Stripe ne sont pas configurés, simuler pour le dev
+
+  if(link.includes('REMPLACE_MOI')){
+
+    // MODE DEV — simule le paiement
+
+    if(confirm(`[MODE DEV]\nSimuler achat "${pack.label}" — $${pack.usd} USD → +$${pack.credits} in-game ?\n\n(En production, remplace les liens Stripe)`)){
+
+      receiveCredits(packId, pack.credits);
+
+    }
+
+    return;
+
+  }
+
+
+  // Production — ouvre Stripe
+
+  const stripeWin = window.open(link, '_blank');
+
+  // Écoute le retour (webhook Stripe → ton serveur → postMessage)
+
+  window.addEventListener('message', function handler(e){
+
+    if(e.data?.type==='stripe_success' && e.data?.packId===packId){
+
+      receiveCredits(packId, pack.credits);
+
+      window.removeEventListener('message', handler);
+
+    }
+
+  });
+
+}
+
+
+function receiveCredits(packId, amount){
+
+  const pack = REAL_PACKS.find(p=>p.id===packId);
+
+  G.money = +(G.money + amount).toFixed(2);
+
+  G.totalRealSpent = +((G.totalRealSpent||0) + (pack?.usd||0)).toFixed(2);
+
+
+  // Bonus items
+
+  if(packId==='standard' && !G.weaponsOwned.includes('ak47')){
+
+    G.weaponsOwned.push('ak47'); G.ammo.ak47=(G.ammo.ak47||0)+30;
+
+  }
+
+  if(packId==='pro' && !G.weaponsOwned.includes('svd')){
+
+    G.weaponsOwned.push('svd'); G.ammo.svd=(G.ammo.svd||0)+8;
+
+  }
+
+  if(packId==='elite'){
+
+    if(!G.weaponsOwned.includes('m249')){ G.weaponsOwned.push('m249'); G.ammo.m249=(G.ammo.m249||0)+100; }
+
+    if(!G.dronesOwned.includes('scout')){ G.dronesOwned.push('scout'); G.droneCharges.scout=(G.droneCharges.scout||0)+3; }
+
+  }
+
+
+  saveGame();
+
+  renderShop();
+
+  showPaymentSuccess(pack, amount);
+
+}
+
+
+function showPaymentSuccess(pack, amount){
+
+  // Flash de confirmation
+
+  const div = document.createElement('div');
+
+  div.style.cssText=`position:fixed;inset:0;background:rgba(0,230,118,.15);
+
+    display:flex;align-items:center;justify-content:center;z-index:999;pointer-events:none;`;
+
+  div.innerHTML=`<div style="background:#001a0a;border:2px solid #00e676;padding:24px 36px;text-align:center;
+
+    font-family:'Bebas Neue',sans-serif;border-radius:4px;">
+
+    <div style="font-size:40px">${pack?.icon||'✅'}</div>
+
+    <div style="font-size:28px;color:#00e676">PAIEMENT REÇU!</div>
+
+    <div style="font-size:18px;color:#f5c400">+$${amount.toFixed(2)} crédits ajoutés</div>
+
+    <div style="font-size:13px;color:#888;margin-top:6px">${pack?.bonus||''}</div>
+
+  </div>`;
+
+  document.body.appendChild(div);
+
+  setTimeout(()=>div.remove(), 3000);
+
+}
+
+
+// ── PUB VIDÉO REWARDED (AdMob / AdSense simulé) ──
+
+let adCooldown = 0; // frames
+
+const AD_REWARD_AMOUNT = 1.50; // $1.50 in-game par pub regardée
+
+
+function watchRewardedAd(){
+
+  if(adCooldown>0){
+
+    const secsLeft = Math.ceil(adCooldown/60);
+
+    alert(`Prochaine pub disponible dans ${secsLeft}s`);
+
+    return;
+
+  }
+
+  // En production → intègre AdMob (Android) ou Google Ad Manager
+
+  // Ici on simule une pub de 30 secondes
+
+  const overlay = document.createElement('div');
+
+  overlay.style.cssText=`position:fixed;inset:0;background:#000;z-index:999;
+
+    display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;`;
+
+  let timeLeft = 5; // 5s en démo (30s en production)
+
+  overlay.innerHTML=`
+
+    <div style="font-size:12px;color:#888;letter-spacing:.2em;margin-bottom:12px">PUBLICITÉ — REGARDE POUR GAGNER</div>
+
+    <div style="font-size:48px;margin-bottom:12px">📺</div>
+
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#f5c400">GANGS CHASE</div>
+
+    <div style="font-size:14px;color:#888;margin:8px 0">Pub partenaire — jeu sans frais cachés</div>
+
+    <div id="ad-timer" style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#d42b2b;margin-top:16px">${timeLeft}s</div>
+
+    <div style="font-size:11px;color:#444;margin-top:8px">Fermeture automatique...</div>
+
+    <div style="margin-top:20px;padding:10px 24px;background:#1a1a1a;border:1px solid #333;font-size:12px;color:#666">
+
+      [Espace publicitaire — intègre Google AdSense / AdMob ici]
+
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+
+  const interval = setInterval(()=>{
+
+    timeLeft--;
+
+    const timerEl = overlay.querySelector('#ad-timer');
+
+    if(timerEl) timerEl.textContent = timeLeft+'s';
+
+    if(timeLeft<=0){
+
+      clearInterval(interval);
+
+      overlay.remove();
+
+      // Récompense
+
+      G.money = +(G.money + AD_REWARD_AMOUNT).toFixed(2);
+
+      adCooldown = 60*60; // 1 min cooldown (en prod = 3-5 min)
+
+      saveGame();
+
+      renderShop();
+
+      showPaymentSuccess({icon:'📺', bonus:'Regarde encore dans 1 minute'}, AD_REWARD_AMOUNT);
+
+    }
+
+  }, 1000);
+
+}
+
+
+// Décrémente cooldown pub chaque frame
+
+function tickAdCooldown(){ if(adCooldown>0) adCooldown--; }
+
+
+// ═══════════════════════════════════════════════════════
+
+//  LEADERBOARD LOCAL
+
+// ═══════════════════════════════════════════════════════
+
+function getLeaderboard(){
+
+  try{
+
+    return JSON.parse(localStorage.getItem('gangschase_lb')||'[]');
+
+  }catch(e){return [];}
+
+}
+
+function saveScore(name, score, kills, dept){
+
+  const lb = getLeaderboard();
+
+  lb.push({name, score, kills, dept, date:new Date().toLocaleDateString('fr')});
+
+  lb.sort((a,b)=>b.score-a.score);
+
+  lb.splice(10); // top 10 seulement
+
+  try{ localStorage.setItem('gangschase_lb', JSON.stringify(lb)); }catch(e){}
+
+}
+
+function renderLeaderboard(){
+
+  const lb = getLeaderboard();
+
+  const lb_section = $('lb-section');
+
+  if(!lb_section) return;
+
+  if(lb.length===0){ lb_section.innerHTML='<div style="color:#444;font-size:12px">Aucun score enregistré</div>'; return; }
+
+  lb_section.innerHTML = lb.map((e,i)=>`
+
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid #1a1a1a">
+
+      <span style="color:${i===0?'#f5c400':i===1?'#aaa':i===2?'#cd7f32':'#555'}">${i+1}. ${e.name||'Anonyme'}</span>
+
+      <span style="color:#f5c400">${e.score}pts</span>
+
+      <span style="color:#888">${e.kills}💀</span>
+
+    </div>`).join('');
+
+}
+
+
+// ── SAVE SCORE ON GAME END ──
+
+function promptAndSaveScore(){
+
+  const name = prompt('Entre ton nom pour le classement:', 'Joueur')?.trim()||'Anonyme';
+
+  const dept = G.currentDept ? DEPTS[G.currentDept]?.name : 'Survie';
+
+  saveScore(name, G.score, G.kills, dept);
+
+}
+
+
+// ═══════════════════════════════════════════════════════
+
+//  SHOP AMÉLIORÉ — ajoute section paiement réel + pub
+
+// ═══════════════════════════════════════════════════════
+
+function renderShop(){
+
+  $('shop-cash').textContent='$'+G.money.toFixed(2);
+
+  const grid=$('sgrid'); grid.innerHTML='';
+
+
+  // ── SECTION RECHARGE RAPIDE ──
+
+  const rt=document.createElement('div');rt.className='sec-title';
+
+  rt.innerHTML='💳 RECHARGER DES CRÉDITS <span style="font-size:9px;color:#888">(Paiement réel)</span>';
+
+  grid.appendChild(rt);
+
+
+  REAL_PACKS.forEach(pack=>{
+
+    const c=document.createElement('div');
+
+    c.className='sc';
+
+    c.style.cssText='border-color:#2a4a2a;background:linear-gradient(135deg,#0a1a0a,#141a14);';
+
+    c.innerHTML=`
+
+      <div class="si">${pack.icon}</div>
+
+      <div class="sn" style="font-size:12px">${pack.label}</div>
+
+      <div style="font-size:14px;color:#00e676;font-family:'Bebas Neue',sans-serif">$${pack.usd} USD</div>
+
+      <div style="font-size:11px;color:#f5c400">→ $${pack.credits.toFixed(2)} in-game</div>
+
+      <div style="font-size:9px;color:#888;margin-top:2px">${pack.bonus}</div>`;
+
+    c.onclick=()=>openStripePayment(pack.id);
+
+    c.style.cursor='pointer';
+
+    grid.appendChild(c);
+
+  });
+
+
+  // ── PUB VIDÉO ──
+
+  const adCard=document.createElement('div');
+
+  adCard.className='sc';
+
+  adCard.style.cssText=`border-color:${adCooldown>0?'#333':'#ff8800'};background:#0a0800;cursor:pointer;`;
+
+  const adReady=adCooldown<=0;
+
+  adCard.innerHTML=`
+
+    <div class="si">📺</div>
+
+    <div class="sn">Pub Vidéo</div>
+
+    <div style="font-size:12px;color:${adReady?'#ff8800':'#555'}">
+
+      ${adReady?`+$${AD_REWARD_AMOUNT} GRATUIT`:`⏳ ${Math.ceil(adCooldown/60)}s`}
+
+    </div>
+
+    <div class="sd">${adReady?'Regarde une pub':'Patiente encore un peu'}</div>`;
+
+  if(adReady) adCard.onclick=()=>watchRewardedAd();
+
+  grid.appendChild(adCard);
+
+
+  // ── MUNITIONS $1 ──
+
+  const at=document.createElement('div');at.className='sec-title';at.textContent='🔹 MUNITIONS — $1.00 / pack';grid.appendChild(at);
+
+  AMMO_PACKS.forEach(ap=>{
+
+    if(!G.weaponsOwned.includes(ap.id))return;
+
+    const c=document.createElement('div');c.className='sc';
+
+    const can=G.money>=ap.price;
+
+    c.style.borderColor=can?'#2a5a2a':'#1e1e1e';
+
+    c.innerHTML=`<div class="si">🔹</div><div class="sn">${ap.name}</div>
+
+    <div class="sp">+${ap.qty} balles · $${ap.price.toFixed(2)}</div>
+
+    <div class="sd" style="color:#88ccff">Actuel: ${G.ammo[ap.id]??0}</div>`;
+
+    if(can){
+
+      c.onclick=()=>{G.money=+(G.money-ap.price).toFixed(2);G.ammo[ap.id]=(G.ammo[ap.id]??0)+ap.qty;saveGame();renderShop();}
+
+    } else {
+
+      c.style.opacity='.4';
+
+      c.title='Recharge tes crédits pour acheter';
+
+    }
+
+    grid.appendChild(c);
+
+  });
+
+
+  // ── DRONES ──
+
+  const dt=document.createElement('div');dt.className='sec-title';
+
+  dt.innerHTML='🚁 DRONES <span style="font-size:10px;color:#888">(Touches 1-4)</span>';
+
+  grid.appendChild(dt);
+
+
+  DRONES.forEach((dr,i)=>{
+
+    const owned=G.dronesOwned.includes(dr.id);
+
+    const charges=G.droneCharges[dr.id]||0;
+
+    const c=document.createElement('div');
+
+    c.className='sc';
+
+    c.style.borderColor=owned?'#4488ff':'#1e1e1e';
+
+    const badge=owned?`<div class="sbadge" style="background:#4488ff;color:#fff">x${charges}</div>`:'';
+
+    const buyPrice = owned ? +(dr.price/2).toFixed(2) : dr.price;
+
+    const canBuy = G.money>=buyPrice;
+
+    c.innerHTML=`${badge}
+
+    <div class="si">${dr.icon}</div>
+
+    <div class="sn">${dr.name}</div>
+
+    <div class="sp">${owned?`$${buyPrice.toFixed(2)} /2charges`:`$${dr.price.toFixed(2)}`}</div>
+
+    <div class="sd">${dr.desc}</div>
+
+    <div style="font-size:10px;color:#4488ff;margin-top:2px">Touche [${i+1}]</div>`;
+
+    if(!owned && canBuy){
+
+      c.onclick=()=>{ G.money=+(G.money-dr.price).toFixed(2); G.dronesOwned.push(dr.id); G.droneCharges[dr.id]=(G.droneCharges[dr.id]||0)+2; saveGame(); renderShop(); updateDroneButtons(); };
+
+    } else if(owned && canBuy){
+
+      c.onclick=()=>{ G.money=+(G.money-buyPrice).toFixed(2); G.droneCharges[dr.id]=(G.droneCharges[dr.id]||0)+2; saveGame(); renderShop(); updateDroneButtons(); };
+
+    } else {
+
+      c.style.opacity='.6';
+
+    }
+
+    grid.appendChild(c);
+
+  });
+
+
+  // ── ARMES ──
+
+  const wt=document.createElement('div');wt.className='sec-title';wt.textContent='🔫 ARMES';grid.appendChild(wt);
+
+  WEAPONS.forEach(w=>{
+
+    const owned=G.weaponsOwned.includes(w.id);
+
+    const eq=G.equippedWeapon===w.id;
+
+    const c=document.createElement('div');
+
+    c.className='sc'+(owned&&!eq?' sc-own':'')+(eq?' sc-eq':'');
+
+    const badge=eq?'<div class="sbadge sbeq">ÉQUIPÉ</div>':owned?'<div class="sbadge sbok">OK</div>':'';
+
+    const ammoLine=owned?`<div style="font-size:10px;color:#88ccff">${G.ammo[w.id]??0} munitions</div>`:'';
+
+    const priceStr=w.price===0?'GRATUITE':`$${w.price.toFixed(2)} USD`;
+
+    const canBuy=G.money>=w.price;
+
+    c.innerHTML=`${badge}<div class="si">${w.icon}</div><div class="sn">${w.name}</div>
+
+    <div class="sp">${priceStr}</div>${ammoLine}<div class="sd">${w.desc}</div>
+
+    <div class="sbar"><div class="sbf" style="width:${w.dr*20}%;background:#d42b2b"></div></div>
+
+    <div class="sbar"><div class="sbf" style="width:${w.fr*20}%;background:#f5c400"></div></div>
+
+    <div class="sbar"><div class="sbf" style="width:${w.sr*20}%;background:#4488ff"></div></div>`;
+
+    if(!owned && canBuy){
+
+      c.onclick=()=>{G.money=+(G.money-w.price).toFixed(2);G.weaponsOwned.push(w.id);G.equippedWeapon=w.id;G.ammo[w.id]=(G.ammo[w.id]??0)+w.starterAmmo;saveGame();renderShop();}
+
+    } else if(!owned && !canBuy){
+
+      c.style.opacity='.5';
+
